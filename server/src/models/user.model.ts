@@ -1,19 +1,27 @@
-import mongoose from 'mongoose'
+import { IUser } from '@/interfaces/user.interface.js'
+import { Schema, Document, model, Model } from 'mongoose'
 
-const UserSchema = new mongoose.Schema(
+export interface IUserDocument extends IUser, Document {}
+
+const UserSchema = new Schema<IUserDocument>(
   {
     email: {
       type: String,
       required: true,
       unique: true
     },
-    name: {
+    firstName: {
+      type: String,
+      required: true
+    },
+    lastName: {
       type: String,
       required: true
     },
     password: {
       type: String,
-      required: true
+      required: true,
+      minlength: [8, 'Password must be at least 8 characters long']
     },
     avatar: {
       type: String
@@ -26,12 +34,22 @@ const UserSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
   }
 )
 
-const UserModel = mongoose.model('user', UserSchema)
+UserSchema.virtual('fullName').get(function () {
+  return `${this.firstName} ${this.lastName}`
+})
+
+const UserModel: Model<IUserDocument> = model<IUserDocument>('User', UserSchema)
 export default UserModel
