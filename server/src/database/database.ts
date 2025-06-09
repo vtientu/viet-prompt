@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
+import 'dotenv/config'
 
 const connectionString = process.env.MONGODB_URI || ''
-
 class Database {
   private static instance: Database
   private isConnected = false
@@ -9,6 +9,7 @@ class Database {
   private constructor() {}
 
   public static getInstance(): Database {
+    console.log(connectionString)
     if (!Database.instance) {
       Database.instance = new Database()
     }

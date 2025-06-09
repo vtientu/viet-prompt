@@ -31,6 +31,11 @@ const UserSchema = new Schema<IUserDocument>(
       enum: ['admin', 'user'],
       default: 'user'
     },
+    favorites: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Prompt',
+      default: []
+    },
     isActive: {
       type: Boolean,
       default: true
@@ -38,6 +43,16 @@ const UserSchema = new Schema<IUserDocument>(
     isVerified: {
       type: Boolean,
       default: false
+    },
+    forgot: {
+      newPassword: {
+        type: String,
+        default: null
+      },
+      code: {
+        type: String,
+        default: null
+      }
     }
   },
   {

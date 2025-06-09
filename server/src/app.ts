@@ -5,8 +5,11 @@ import morgan from 'morgan'
 import compression from 'compression'
 import { globalErrorHandler, notFoundHandler } from '@/middleware/errorHandler.js'
 import router from '@/routers/index.js'
+import database from '@/database/database.js'
 
 const app = express()
+
+database.connectDB()
 
 // Middleware
 app.use(express.json())

@@ -6,6 +6,7 @@ const authRouter = Router()
 
 authRouter.post('/login', asyncHandler(AuthController.login))
 authRouter.post('/register', asyncHandler(AuthController.register))
+authRouter.post('/forgot-password', asyncHandler(AuthController.forgotPassword))
 
 /** --------Authentication--------- */
 authRouter.use(authentication)

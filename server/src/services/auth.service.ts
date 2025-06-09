@@ -3,7 +3,15 @@ import { BadRequestError, ForbiddenError, UnauthorizedError } from '@/core/error
 import KeyTokenModel, { IKeyTokenDocument } from '@/models/keyToken.model.js'
 import KeyToken from '@/models/keyToken.model.js'
 import UserModel from '@/models/user.model.js'
-import { loginSchema, LoginSchema, registerSchema, RegisterSchema } from '@/schema/auth.schema.js'
+import {
+  forgotPasswordSchema,
+  ForgotPasswordSchema,
+  loginSchema,
+  LoginSchema,
+  registerSchema,
+  RegisterSchema
+} from '@/schema/auth.schema.js'
+import { sendPasswordResetEmail } from '@/utils/email.util.js'
 import { pickFields } from '@/utils/index.js'
 import bcrypt from 'bcryptjs'
 import crypto from 'node:crypto'
@@ -73,8 +81,7 @@ class AuthService {
      * 4 - Create user
      */
     const { email, password, firstName, lastName } = body
-
-    const { error } = registerSchema.safeParse(body)
+    const { error } = registerSchema.safeParse({ email, password, firstName, lastName })
     if (error) {
       throw new BadRequestError(error.message)
     }
@@ -97,6 +104,34 @@ class AuthService {
 
     return {
       user: pickFields(newUser, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified'])
+    }
+  }
+
+  public static async forgotPassword(body: ForgotPasswordSchema) {
+    const { email, password } = body
+    const { error } = forgotPasswordSchema.safeParse({ email, password })
+    if (error) {
+      throw new BadRequestError(error.message)
+    }
+
+    // random code 6 digits
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
+
+    const user = await UserModel.findOne({ email }).lean({ virtuals: true })
+    if (!user) {
+      throw new BadRequestError('Email not registered!')
+    }
+
+    await UserModel.findByIdAndUpdate(user._id, {
+      $set: {
+        'forgot.code': code
+      }
+    })
+
+    await sendPasswordResetEmail(email, code)
+
+    return {
+      message: 'Code sent to email!'
     }
   }
 

@@ -1,3 +1,5 @@
+import { Types } from 'mongoose'
+
 export interface IUser {
   email: string
   firstName: string
@@ -9,6 +11,11 @@ export interface IUser {
   isVerified: boolean
   createdAt?: Date
   updatedAt?: Date
+  favorites: Types.ObjectId[]
+  forgot: {
+    newPassword: string
+    code: string
+  }
 
   // ✅ Thêm virtual
   fullName?: string
