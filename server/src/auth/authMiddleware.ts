@@ -40,17 +40,10 @@ export const permission = (permission: string) => async (req: CustomRequest, res
 }
 
 export const authentication = asyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
-  const userId = req.headers[HEADER.CLIENT_ID]?.toString()
-
-  if (!userId || !isValidObjectId(userId)) {
-    throw new UnauthorizedError()
-  }
-
   const refreshToken = req.headers[HEADER.REFRESH_TOKEN]?.toString()
   if (refreshToken) {
     try {
       const decodeUser = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string) as JWT.JwtPayload
-      if (userId !== decodeUser?._id) throw new UnauthorizedError('Invalid UserID')
       req.user = decodeUser
       return next()
     } catch (error) {
@@ -61,13 +54,13 @@ export const authentication = asyncHandler(async (req: CustomRequest, res: Respo
   const authHeader = req.headers.authorization
 
   const accessToken = getTokenFromHeader(authHeader)
+  console.log(accessToken)
   if (!accessToken) {
     throw new UnauthorizedError()
   }
 
   try {
     const decodeUser = JWT.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string) as JWT.JwtPayload
-    if (userId !== decodeUser?._id) throw new UnauthorizedError('Invalid UserID')
     req.user = decodeUser
     next()
   } catch (error) {

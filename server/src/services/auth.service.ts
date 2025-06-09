@@ -9,12 +9,13 @@ import {
   loginSchema,
   LoginSchema,
   registerSchema,
-  RegisterSchema
+  RegisterSchema,
+  resetPasswordSchema,
+  ResetPasswordSchema
 } from '@/schema/auth.schema.js'
 import { sendPasswordResetEmail } from '@/utils/email.util.js'
 import { pickFields } from '@/utils/index.js'
 import bcrypt from 'bcryptjs'
-import crypto from 'node:crypto'
 
 class AuthService {
   /**
@@ -49,8 +50,8 @@ class AuthService {
     }
 
     // 3
-    const accessKeyToken = crypto.randomBytes(64).toString('hex')
-    const refreshKeyToken = crypto.randomBytes(64).toString('hex')
+    const accessKeyToken = process.env.ACCESS_TOKEN_SECRET as string
+    const refreshKeyToken = process.env.REFRESH_TOKEN_SECRET as string
 
     // 4
     const tokens = createTokensPair({
@@ -124,7 +125,8 @@ class AuthService {
 
     await UserModel.findByIdAndUpdate(user._id, {
       $set: {
-        'forgot.code': code
+        'forgot.code': code,
+        'forgot.newPassword': password
       }
     })
 
@@ -132,6 +134,38 @@ class AuthService {
 
     return {
       message: 'Code sent to email!'
+    }
+  }
+
+  public static async resetPassword(body: ResetPasswordSchema) {
+    const { email, code } = body
+    const { error } = resetPasswordSchema.safeParse({ email, code })
+    if (error) {
+      throw new BadRequestError(error.errors.map((err) => err.message).join(', '))
+    }
+
+    const user = await UserModel.findOne({ email })
+
+    if (!user) {
+      throw new BadRequestError('Email not registered!')
+    }
+
+    if (user.forgot.code !== code) {
+      throw new BadRequestError('Invalid code!')
+    }
+
+    const hashedPassword = await bcrypt.hash(user.forgot.newPassword, 10)
+
+    await UserModel.findByIdAndUpdate(user._id, {
+      $set: {
+        password: hashedPassword,
+        'forgot.code': null,
+        'forgot.newPassword': null
+      }
+    })
+
+    return {
+      message: 'Password reset successfully!'
     }
   }
 

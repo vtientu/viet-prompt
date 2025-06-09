@@ -9,7 +9,6 @@ class Database {
   private constructor() {}
 
   public static getInstance(): Database {
-    console.log(connectionString)
     if (!Database.instance) {
       Database.instance = new Database()
     }

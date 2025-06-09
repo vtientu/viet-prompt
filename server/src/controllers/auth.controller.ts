@@ -26,6 +26,13 @@ class AuthController {
     }).send(res)
   }
 
+  public static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    new OK({
+      message: 'Reset password successfully!',
+      metadata: await AuthService.resetPassword(req.body)
+    }).send(res)
+  }
+
   public static async logout(req: CustomRequest, res: Response, next: NextFunction) {
     new OK({
       message: 'Logout successfully!',

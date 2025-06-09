@@ -12,13 +12,10 @@ const initTransporter = () => {
   const emailConfig = {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port: Number(process.env.EMAIL_PORT) || 587,
-    secure: process.env.EMAIL_SECURE === 'true', // true cho SSL 465, false cho các cổng khác
+    secure: false, // chỉ false nếu port là 587 (TLS), true nếu 465 (SSL)
     auth: {
       user: process.env.EMAIL_USERNAME,
       pass: process.env.EMAIL_PASSWORD
-    },
-    tls: {
-      rejectUnauthorized: process.env.NODE_ENV === 'production' // chỉ validate SSL trong production
     }
   } as nodemailer.TransportOptions
 
@@ -55,7 +52,7 @@ const sendEmail = async (options: SendMailOptions): Promise<any> => {
   }
 
   // Cấu hình mặc định cho email
-  const defaultFrom = `${process.env.EMAIL_FROM_NAME || 'Boarding House System'} <${process.env.EMAIL_USERNAME}>`
+  const defaultFrom = `${process.env.EMAIL_FROM_NAME || 'AI Prompt'} <${process.env.EMAIL_USERNAME}>`
 
   // Cấu hình email để gửi
   const mailOptions: SendMailOptions = {
@@ -72,7 +69,6 @@ const sendEmail = async (options: SendMailOptions): Promise<any> => {
   try {
     // Gửi email và trả về kết quả
     const info = await transporter!.sendMail(mailOptions)
-    console.log(`Email sent: ${info.messageId}`)
     return info
   } catch (error) {
     console.error('Error sending email:', error)
@@ -95,8 +91,6 @@ const sendPasswordResetEmail = async (to: string, resetCode: string) => {
     
     ${resetCode}  
     
-    Code này sẽ hết hạn sau 10 phút.  
-    
     Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.  
     
     Trân trọng
@@ -110,7 +104,6 @@ const sendPasswordResetEmail = async (to: string, resetCode: string) => {
       <div style="text-align: center; margin: 30px 0;">  
         <p style="background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">${resetCode}</p>  
       </div>  
-      <p>Liên kết này sẽ hết hạn sau <strong>10 phút</strong>.</p>  
       <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>  
       <p>Trân trọng</p>  
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9e9e9; font-size: 12px; color: #777; text-align: center;">  
