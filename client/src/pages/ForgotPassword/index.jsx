@@ -45,8 +45,9 @@ const ForgotPassword = () => {
           password: formData.password,
         });
         if (response.status === 200) {
-          toast.success("Đăng ký thành công");
-          navigate("/");
+          localStorage.setItem("email", formData.email);
+          toast.success("Gửi mã thành công");
+          navigate("/reset-password");
         } else {
           toast.error(response.data.message || "Đăng ký thất bại");
         }
@@ -113,7 +114,7 @@ const ForgotPassword = () => {
               </div>
               <div className="d-grid">
                 <button type="submit" className="btn btn-dkgg">
-                  Gửi lại mã qua Email
+                  Gửi mã xác thực qua Email
                 </button>
               </div>
             </form>
