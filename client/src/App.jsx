@@ -5,6 +5,8 @@ import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
+import FavouritePage from "./pages/Favourite";
+import AdminPage from "./pages/Admin";
 
 function App() {
   return (
@@ -38,6 +40,22 @@ function App() {
         element={
           <MainLayout>
             <ForgotPassword />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/favourite"
+        element={
+          <MainLayout>
+            <FavouritePage />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <MainLayout>
+            <AdminPage />
           </MainLayout>
         }
       />
