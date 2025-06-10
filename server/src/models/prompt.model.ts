@@ -8,6 +8,10 @@ const PromptSchema = new Schema(
       ref: 'User',
       required: true
     },
+    name: {
+      type: String,
+      required: true
+    },
     prompt: {
       type: String,
       required: true

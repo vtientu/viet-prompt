@@ -16,4 +16,4 @@ const upload = multer({
   }
 })
 
-export const singleUploadImage = upload.single('avatar')
+export default upload

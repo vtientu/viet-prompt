@@ -6,5 +6,6 @@ const promptRouter = Router()
 
 promptRouter.use(authentication)
 promptRouter.get('/favourite', asyncHandler(PromptController.getFavourite))
+promptRouter.get('/owner', asyncHandler(PromptController.getPromptOwner))
 
 export default promptRouter

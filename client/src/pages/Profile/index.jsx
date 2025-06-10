@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import "./information.css";
 import http from "../../api/http";
 import { toast } from "react-toastify";
+import ProfileForm from "./ProfileForm";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
+  const [prompts, setPrompts] = useState([]);
+
   const fetchProfile = async () => {
     try {
       const response = await http.get("/user/profile");
@@ -20,8 +23,28 @@ const Profile = () => {
     }
   };
 
+  const fetchPrompts = async () => {
+    try {
+      const response = await http.get("/prompt/owner");
+      if (response.status === 200) {
+        setPrompts(response.data.metadata);
+      } else {
+        toast.error("Lỗi khi lấy danh sách prompt");
+      }
+    } catch (error) {
+      toast.error(
+        error.response.data.message || "Lỗi khi lấy danh sách prompt"
+      );
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
+    fetchPrompts();
+    return () => {
+      setPrompts([]);
+      setProfile(null);
+    };
   }, []);
 
   return (
@@ -121,9 +144,21 @@ const Profile = () => {
               <div className="profile-container">
                 <div className="left-panel glass-box d-flex">
                   <div className="user-profile">
-                    <div className="avatarUser"></div>
+                    <div
+                      className="avatarUser"
+                      style={{
+                        backgroundImage: `url(${
+                          profile?.avatar || "/img/avatar-default.svg"
+                        })`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    ></div>
                     <div className="user-info-box">
-                      <div className="user-name">TÊN NGƯỜI DÙNG</div>
+                      <div className="user-name">
+                        {profile?.firstName + " " + profile?.lastName}
+                      </div>
                       <div className="user-desc">Giới thiệu bản thân</div>
                     </div>
                   </div>
@@ -170,38 +205,7 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <div className="right-panel glass-box">
-                  <div className="input-grid">
-                    <div className="field">
-                      <label>Full Name</label>
-                      <input type="text" />
-                    </div>
-                    <div className="field">
-                      <label>Nick Name</label>
-                      <input type="text" />
-                    </div>
-                    <div className="field">
-                      <label>Gender</label>
-                      <input type="text" />
-                    </div>
-                    <div className="field">
-                      <label>Country</label>
-                      <input type="text" />
-                    </div>
-                    <div className="field">
-                      <label>Language</label>
-                      <input type="text" />
-                    </div>
-                    <div className="field">
-                      <label>Time Zone</label>
-                      <input type="text" />
-                    </div>
-                    <div className="field full-width">
-                      <label>My email address</label>
-                    </div>
-                    <div className="add-email-btn">+Add Email Address</div>
-                  </div>
-                </div>
+                <ProfileForm profile={profile} fetchProfile={fetchProfile} />
               </div>
 
               <div className="project-nav-buttons">
@@ -214,24 +218,41 @@ const Profile = () => {
               </div>
 
               <div className="project-list">
-                <div className="project-card">
-                  <div className="project-img">
-                    <div className="heart-icon">
-                      <img src="/img/heartcard.svg" alt="Heart icon" />
+                {prompts.map((prompt) => (
+                  <div className="project-card" key={prompt._id}>
+                    <div
+                      className="project-img"
+                      style={{
+                        backgroundImage: `url(${prompt.thumbnail.url})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    >
+                      <div className="heart-icon">
+                        <img src="/img/heartcard.svg" alt="Heart icon" />
+                      </div>
+                    </div>
+                    <div className="frontend">{prompt.category.name}</div>
+                    <div className="project-title">{prompt.name}</div>
+                    <img src="/img/Group 2.svg" />
+                    <div className="project-author d-flex">
+                      <div
+                        className="chamXanh"
+                        style={{
+                          backgroundImage: `url(${prompt.owner.avatar})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat",
+                        }}
+                      ></div>
+                      <div>
+                        {prompt.owner.firstName} {prompt.owner.lastName}
+                        <br />
+                      </div>
                     </div>
                   </div>
-                  <div className="frontend">FRONTEND</div>
-                  <div className="project-title">Tên Dự Án</div>
-                  <img src="/img/Group 2.svg" />
-                  <div className="project-author d-flex">
-                    <div className="chamXanh"></div>
-                    <div>
-                      Prashant Kumar Singh
-                      <br />
-                      <span>Software Developer</span>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 

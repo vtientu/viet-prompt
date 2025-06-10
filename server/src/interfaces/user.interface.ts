@@ -7,6 +7,9 @@ export interface IUser {
   password: string
   avatar?: string
   role: 'admin' | 'user'
+  gender: 'male' | 'female' | 'other'
+  country: string
+  language: string
   isActive: boolean
   isVerified: boolean
   createdAt?: Date

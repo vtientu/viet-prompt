@@ -664,3 +664,6 @@ background:none;
 
 }
 
+.error-msg {
+  color: red;
+}

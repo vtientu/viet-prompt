@@ -13,6 +13,12 @@ class PromptService {
 
     return prompts
   }
+  public static async getPromptOwner(userId: string) {
+    const prompts = await PromptModel.find({ owner: userId })
+      .populate('owner', 'firstName lastName avatar')
+      .populate('category', 'name')
+    return prompts
+  }
 }
 
 export default PromptService

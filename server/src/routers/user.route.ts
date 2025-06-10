@@ -7,5 +7,6 @@ const userRouter = Router()
 
 userRouter.use(authentication)
 userRouter.get('/profile', asyncHandler(UserController.getProfile))
+userRouter.put('/profile', asyncHandler(UserController.updateProfile))
 
 export default userRouter

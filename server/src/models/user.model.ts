@@ -26,6 +26,17 @@ const UserSchema = new Schema<IUserDocument>(
     avatar: {
       type: String
     },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'other'],
+      default: 'other'
+    },
+    country: {
+      type: String
+    },
+    language: {
+      type: String
+    },
     role: {
       type: String,
       enum: ['admin', 'user'],

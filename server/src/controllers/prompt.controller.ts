@@ -10,6 +10,12 @@ class PromptController {
       metadata: await PromptService.getFavourite(req.user._id)
     }).send(res)
   }
+  public static async getPromptOwner(req: CustomRequest, res: Response) {
+    new OK({
+      message: 'Prompts fetched successfully',
+      metadata: await PromptService.getPromptOwner(req.user._id)
+    }).send(res)
+  }
 }
 
 export default PromptController
