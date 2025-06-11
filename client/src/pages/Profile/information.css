@@ -348,6 +348,7 @@
 
 /*=======*/
 .information-section {
+  width: 100%;
   background: url('/img/nenAdmin.png') no-repeat center center;
   background-size: cover;
   padding: 0;
@@ -356,7 +357,6 @@
   border-bottom-right-radius: 50px;
 }
 .profile-section {
-  
   border-radius: 20px;
   padding: 10px;
   color: white;

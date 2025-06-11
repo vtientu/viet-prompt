@@ -9,6 +9,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import FavouritePage from "./pages/Favourite";
 import AdminPage from "./pages/Admin";
+import InformationLayout from "./layouts/InformationLayout";
+import Transaction from "./pages/Transaction";
 
 function App() {
   return (
@@ -56,25 +58,33 @@ function App() {
       <Route
         path="/profile"
         element={
-          <MainLayout>
+          <InformationLayout>
             <Profile />
-          </MainLayout>
+          </InformationLayout>
         }
       />
       <Route
         path="/favourite"
         element={
-          <MainLayout>
+          <InformationLayout>
             <FavouritePage />
-          </MainLayout>
+          </InformationLayout>
         }
       />
       <Route
         path="/admin"
         element={
-          <MainLayout>
+          <InformationLayout>
             <AdminPage />
-          </MainLayout>
+          </InformationLayout>
+        }
+      />
+      <Route
+        path="/transaction"
+        element={
+          <InformationLayout>
+            <Transaction />
+          </InformationLayout>
         }
       />
     </Routes>

@@ -1,10 +1,13 @@
 import { Types } from 'mongoose'
 
 export interface IPayment {
-  user: Types.ObjectId
-  amount: number
-  method: 'bank'
-  status: 'success' | 'pending' | 'failed'
+  userId: Types.ObjectId
+  currency: string
+  paymentMethod: 'vnpay'
+  status: 'pending' | 'success' | 'failed' | 'cancelled' | 'refunded'
+  transactionCode: string
+  paidAt: Date
+  note: string
   createdAt: Date
   updatedAt: Date
 }
