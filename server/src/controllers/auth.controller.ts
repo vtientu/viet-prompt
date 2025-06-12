@@ -33,6 +33,12 @@ class AuthController {
     }).send(res)
   }
 
+  public static async verifyToken(req: Request, res: Response, next: NextFunction) {
+    new OK({
+      message: 'Verify token successfully!'
+    }).send(res)
+  }
+
   public static async logout(req: CustomRequest, res: Response, next: NextFunction) {
     new OK({
       message: 'Logout successfully!',

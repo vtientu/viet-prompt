@@ -7,7 +7,7 @@ class PromptController {
   public static async getFavourite(req: CustomRequest, res: Response) {
     new OK({
       message: 'Prompts fetched successfully',
-      metadata: await PromptService.getFavourite(req.user._id)
+      metadata: await PromptService.getFavourite(req.user._id, req.query?.categoryId as string)
     }).send(res)
   }
   public static async getPromptOwner(req: CustomRequest, res: Response) {

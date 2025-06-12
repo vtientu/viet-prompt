@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
 import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
@@ -11,84 +11,98 @@ import FavouritePage from "./pages/Favourite";
 import AdminPage from "./pages/Admin";
 import InformationLayout from "./layouts/InformationLayout";
 import Transaction from "./pages/Transaction";
+import Authentication from "./Authentication";
+import Contact from "./pages/Contact";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
 
 function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <MainLayout>
-            <HomePage />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          <MainLayout>
-            <LoginPage />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <MainLayout>
-            <RegisterPage />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="/forgot-password"
-        element={
-          <MainLayout>
-            <ForgotPassword />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="/reset-password"
-        element={
-          <MainLayout>
-            <ResetPassword />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <InformationLayout>
-            <Profile />
-          </InformationLayout>
-        }
-      />
-      <Route
-        path="/favourite"
-        element={
-          <InformationLayout>
-            <FavouritePage />
-          </InformationLayout>
-        }
-      />
-      <Route
-        path="/admin"
-        element={
-          <InformationLayout>
-            <AdminPage />
-          </InformationLayout>
-        }
-      />
-      <Route
-        path="/transaction"
-        element={
-          <InformationLayout>
-            <Transaction />
-          </InformationLayout>
-        }
-      />
+      {PublicRoute.map((route, index) => (
+        <Route
+          key={index}
+          path={route.path}
+          element={<route.layout>{route.element}</route.layout>}
+        />
+      ))}
+      <Route path="/" element={<Authentication />}>
+        {PrivateRoute.map((route, index) => (
+          <Route
+            key={index}
+            path={route.path}
+            element={<route.layout>{route.element}</route.layout>}
+          />
+        ))}
+      </Route>
     </Routes>
   );
 }
 
 export default App;
+
+export const PublicRoute = [
+  {
+    path: "/",
+    element: <HomePage />,
+    layout: MainLayout,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+    layout: MainLayout,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
+    layout: MainLayout,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+    layout: MainLayout,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
+    layout: MainLayout,
+  },
+];
+
+const PrivateRoute = [
+  {
+    path: "/profile",
+    element: <Profile />,
+    layout: InformationLayout,
+  },
+  {
+    path: "/payment-success",
+    element: <PaymentSuccess />,
+    layout: MainLayout,
+  },
+  {
+    path: "/payment-failure",
+    element: <PaymentFailure />,
+    layout: MainLayout,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
+    layout: MainLayout,
+  },
+  {
+    path: "/favourite",
+    element: <FavouritePage />,
+    layout: InformationLayout,
+  },
+  {
+    path: "/admin",
+    element: <AdminPage />,
+    layout: InformationLayout,
+  },
+  {
+    path: "/transaction",
+    element: <Transaction />,
+    layout: InformationLayout,
+  },
+];

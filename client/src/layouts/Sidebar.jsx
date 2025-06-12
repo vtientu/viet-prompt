@@ -1,35 +1,50 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 const Sidebar = () => {
+  const { user } = useAuthStore();
   const navigate = useNavigate();
   return (
-    <aside class="sidebar col-md-2 p-3">
-      <div class="sidebar__header">
-        <div class="avatar"></div>
+    <aside className="sidebar col-md-2 p-3">
+      <div className="sidebar__header">
+        <div
+          className="avatar"
+          style={{
+            backgroundImage: `url(${
+              user?.avatar || "/img/avatar-default.svg"
+            })`,
+            backgroundColor: "white",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        ></div>
         <div>
-          <div class="sidebar__name">Admin</div>
-          <div class="sidebar__status">Online</div>
+          <div className="sidebar__name">
+            {user?.firstName + " " + user?.lastName}
+          </div>
+          <div className="sidebar__status">Online</div>
         </div>
       </div>
 
-      <hr class="sidebar__divider" />
+      <hr className="sidebar__divider" />
 
-      <div class="sidebar__section-title">Tiện ích</div>
-      <ul class="sidebar__menu">
+      <div className="sidebar__section-title">Tiện ích</div>
+      <ul className="sidebar__menu">
         <li>
           <img src="/img/search.svg" /> Tìm kiếm
-          <button class="btn_click">Click</button>
+          <button className="btn_click">Click</button>
         </li>
         <li>
           <img src="/img/credit-card.svg" /> Gói dịch vụ
         </li>
       </ul>
 
-      <hr class="sidebar__divider" />
+      <hr className="sidebar__divider" />
 
-      <div class="sidebar__section-title">Danh mục</div>
-      <ul class="sidebar__menu">
+      <div className="sidebar__section-title">Danh mục</div>
+      <ul className="sidebar__menu">
         <li onClick={() => navigate("/admin")}>
           <img src="/img/square (1).svg" />
           Forum
@@ -45,17 +60,17 @@ const Sidebar = () => {
           <img src="/img/octagon.svg" /> Cài đặt tài khoản
         </li>
       </ul>
-      <div class="sidebar__spacer"></div>
+      <div className="sidebar__spacer"></div>
 
-      <div class="sidebar__account">
-        <div class="avatar small">
+      <div className="sidebar__account">
+        <div className="avatar small">
           <img src="/img/Status.svg" />
         </div>
         <div>
-          <div class="sidebar__account-type">Loại tài khoản</div>
-          <div class="sidebar__account-badge">Premium</div>
+          <div className="sidebar__account-type">Loại tài khoản</div>
+          <div className="sidebar__account-badge">Premium</div>
         </div>
-        <div class="settings-icon">
+        <div className="settings-icon">
           <img src="/img/cog.svg" />
         </div>
       </div>

@@ -30,7 +30,7 @@ class PaymentService {
     this.vnp_TmnCode = process.env.VNP_TMN_CODE || ''
     this.vnp_HashSecret = process.env.VNP_HASH_SECRET || ''
     this.vnp_Url = process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
-    this.vnp_ReturnUrl = process.env.VNP_RETURN_URL || 'http://localhost:3000/api/payments/vnpay-return'
+    this.vnp_ReturnUrl = process.env.VNP_RETURN_URL || 'http://localhost:3000/api/payment/vnpay-return'
     this.vnp_ApiUrl = process.env.VNP_API_URL || 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction'
     this.vnpay = new VNPay({
       tmnCode: this.vnp_TmnCode,

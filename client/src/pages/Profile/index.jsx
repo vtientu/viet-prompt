@@ -3,16 +3,17 @@ import "./information.css";
 import http from "../../api/http";
 import { toast } from "react-toastify";
 import ProfileForm from "./ProfileForm";
+import { useAuthStore } from "../../store/authStore";
 
 const Profile = () => {
-  const [profile, setProfile] = useState(null);
+  const { user, setUser } = useAuthStore();
   const [prompts, setPrompts] = useState([]);
 
   const fetchProfile = async () => {
     try {
       const response = await http.get("/user/profile");
       if (response.status === 200) {
-        setProfile(response.data.metadata);
+        setUser(response.data.metadata);
       } else {
         toast.error("Lỗi khi lấy thông tin người dùng");
       }
@@ -43,7 +44,7 @@ const Profile = () => {
     fetchPrompts();
     return () => {
       setPrompts([]);
-      setProfile(null);
+      setUser(null);
     };
   }, []);
 
@@ -88,7 +89,7 @@ const Profile = () => {
                     className="avatarUser"
                     style={{
                       backgroundImage: `url(${
-                        profile?.avatar || "/img/avatar-default.svg"
+                        user?.avatar || "/img/avatar-default.svg"
                       })`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
@@ -97,7 +98,7 @@ const Profile = () => {
                   ></div>
                   <div className="user-info-box">
                     <div className="user-name">
-                      {profile?.firstName + " " + profile?.lastName}
+                      {user?.firstName + " " + user?.lastName}
                     </div>
                     <div className="user-desc">Giới thiệu bản thân</div>
                   </div>
@@ -145,7 +146,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <ProfileForm profile={profile} fetchProfile={fetchProfile} />
+              <ProfileForm profile={user} fetchProfile={fetchProfile} />
             </div>
 
             <div className="project-nav-buttons">
@@ -168,11 +169,7 @@ const Profile = () => {
                       backgroundPosition: "center",
                       backgroundRepeat: "no-repeat",
                     }}
-                  >
-                    <div className="heart-icon">
-                      <img src="/img/heartcard.svg" alt="Heart icon" />
-                    </div>
-                  </div>
+                  ></div>
                   <div className="frontend">{prompt.category.name}</div>
                   <div className="project-title">{prompt.name}</div>
                   <img src="/img/Group 2.svg" />

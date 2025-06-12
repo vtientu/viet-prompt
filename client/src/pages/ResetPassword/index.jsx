@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./resetPassword.css";
 import { toast } from "react-toastify";
 import http from "../../api/http";
@@ -49,6 +49,13 @@ const ResetPassword = () => {
       toast.warning("Vui lòng nhập đủ 6 số OTP");
     }
   };
+
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    if (!email) {
+      navigate("/forgot-password");
+    }
+  }, []);
 
   return (
     <section className="forgot-password-code-section py-5 p-5">

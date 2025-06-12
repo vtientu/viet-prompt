@@ -3,9 +3,11 @@ import "./login.css";
 import http from "../../api/http";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuthStore();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -56,6 +58,10 @@ const LoginPage = () => {
           localStorage.setItem(
             "user",
             JSON.stringify(response.data.metadata.user)
+          );
+          login(
+            response.data.metadata.user,
+            response.data.metadata.tokens.accessToken
           );
           toast.success("Đăng nhập thành công");
           navigate("/");

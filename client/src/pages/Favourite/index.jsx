@@ -5,11 +5,34 @@ import { toast } from "react-toastify";
 
 const FavouritePage = () => {
   const [prompts, setPrompts] = useState([]);
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await http.get("/category");
+        if (response.status === 200) {
+          setCategories(response.data.metadata);
+        } else {
+          toast.error(response.data.message || "Lỗi khi lấy dữ liệu");
+        }
+      } catch (error) {
+        toast.error(error.response.data.message || "Lỗi khi lấy dữ liệu");
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchPrompts = async () => {
       try {
-        const response = await http.get("/prompt/favourite");
+        const response = await http.get("/prompt/favourite", {
+          params: {
+            categoryId: categoryId,
+          },
+        });
         if (response.status === 200) {
           setPrompts(response.data.metadata);
         } else {
@@ -19,124 +42,141 @@ const FavouritePage = () => {
         toast.error(error.response.data.message || "Lỗi khi lấy dữ liệu");
       }
     };
+
     fetchPrompts();
-  }, []);
+  }, [categoryId]);
 
   return (
-    <section class="favourite-section ">
-      <div class="container-fluid">
-        <main class="dashboard__main">
-          <span class="name">Bộ lọc</span>
-          <div class="filter-buttons">
-            <div class="group-filter-buttons">
+    <section className="favourite-section ">
+      <div className="container-fluid">
+        <main className="dashboard__main">
+          <span className="name">Bộ lọc</span>
+          <div className="filter-buttons">
+            <div
+              className="group-filter-buttons"
+              onClick={() => setCategoryId("")}
+            >
               <img
                 src="/img/select.svg"
                 style={{ width: "28.8px", height: "28.8px" }}
               />
-              <label class="filter-option">
-                <span>Hoạt hình</span>
+              <label
+                className="filter-option"
+                style={{
+                  color: categoryId === "" ? "#0084ff" : "#00e0ff",
+                  borderColor: categoryId === "" ? "#0084ff" : "#00e0ff",
+                }}
+              >
+                <span>Tất cả</span>
               </label>
             </div>
-            <div class="group-filter-buttons">
-              <img
-                src="/img/select.svg"
-                style={{ width: "28.8px", height: "28.8px" }}
-              />
-              <label class="filter-option">
-                <span>Semi</span>
-              </label>
-            </div>
-            <div class="group-filter-buttons">
-              <img
-                src="/img/select.svg"
-                style={{ width: "28.8px", height: "28.8px" }}
-              />
-              <label class="filter-option">
-                <span>Tác giả ABC</span>
-              </label>
-            </div>
-            <div class="group-filter-buttons">
-              <img
-                src="/img/select.svg"
-                style={{ width: "28.8px", height: "28.8px" }}
-              />
-              <label class="filter-option">
-                <span>Công nghệ</span>
-              </label>
-            </div>
-            <div class="group-filter-buttons">
-              <img
-                src="/img/select.svg"
-                style={{ width: "28.8px", height: "28.8px" }}
-              />
-              <label class="filter-option">
-                <span>Sự kiện</span>
-              </label>
-            </div>
-            <div class="group-filter-buttons">
-              <img
-                src="/img/select.svg"
-                style={{ width: "28.8px", height: "28.8px" }}
-              />
-              <label class="filter-option">
-                <span>Động vật</span>
-              </label>
-            </div>
-          </div>
-          <div class="swiper mySwiper mt-4">
-            <div class="swiper-wrapper">
-              {prompts.map((prompt, index) => (
-                <div class="swiper-slide" key={index}>
-                  <img src={prompt.thumbnail.url} alt="Prompt 1" />
-                  <div class="image-caption">
-                    <img
-                      src={prompt.thumbnail.url}
-                      class="avatar"
-                      alt="Avatar"
-                    />
-                    <span class="username">{prompt.username}</span>\
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div class="swiper-pagination mt-3"></div>
-          </div>
-
-          <div class="carousel-controls text-center mt-3">
-            <button class="btn  me-2">Thêm yêu thích</button>
-            <button class="btn me-2">Xem chi tiết</button>
-            <button class="btn ">Tạo prompt mới</button>
-          </div>
-        </main>
-        <div class="dashboard__partners py-3 text-center">
-          <div class="container-fluid">
-            <div class="row justify-content-between align-items-center">
-              <div class="col-auto">
-                <img src="/img/waverio.svg" alt="weavio" class="img-fluid" />
+            {categories.map((category) => (
+              <div
+                className="group-filter-buttons"
+                key={category._id}
+                onClick={() => setCategoryId(category._id)}
+              >
+                <img
+                  src="/img/select.svg"
+                  style={{
+                    width: "28.8px",
+                    height: "28.8px",
+                  }}
+                />
+                <label
+                  className="filter-option"
+                  style={{
+                    color: categoryId === category._id ? "#0084ff" : "#00e0ff",
+                    borderColor:
+                      categoryId === category._id ? "#0084ff" : "#00e0ff",
+                  }}
+                >
+                  <span>{category.name}</span>
+                </label>
               </div>
-              <div class="col-auto">
+            ))}
+          </div>
+          {prompts.length > 0 ? (
+            <>
+              <div className="swiper mySwiper mt-4">
+                <div className="swiper-wrapper">
+                  {prompts.map((prompt, index) => (
+                    <div className="swiper-slide" key={index}>
+                      <img src={prompt.thumbnail.url} alt="Prompt 1" />
+                      <div className="image-caption">
+                        <img
+                          src={prompt.owner.avatar || "/img/avatar-default.svg"}
+                          alt="Avatar"
+                          className="avatar"
+                          style={{
+                            width: "35px",
+                            height: "35px",
+                            borderRadius: "50%",
+                            padding: 0,
+                            backgroundColor: "#fff",
+                          }}
+                        />
+                        <span className="username">
+                          {prompt.owner.fullName}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="swiper-pagination mt-3"></div>
+              </div>
+
+              <div className="carousel-controls text-center mt-3">
+                <button className="btn me-2">Thêm yêu thích</button>
+                <button className="btn me-2">Xem chi tiết</button>
+                <button className="btn ">Tạo prompt mới</button>
+              </div>
+            </>
+          ) : (
+            <div classNameName="label-no-data">Không có dữ liệu</div>
+          )}
+        </main>
+        <div className="dashboard__partners py-3 text-center">
+          <div className="container-fluid">
+            <div className="row justify-content-between align-items-center">
+              <div className="col-auto">
+                <img
+                  src="/img/waverio.svg"
+                  alt="weavio"
+                  className="img-fluid"
+                />
+              </div>
+              <div className="col-auto">
                 <img
                   src="/img/squareStore.svg"
                   alt="squarestone"
-                  class="img-fluid"
+                  className="img-fluid"
                 />
               </div>
-              <div class="col-auto">
-                <img src="/img/martino.svg" alt="martino" class="img-fluid" />
+              <div className="col-auto">
+                <img
+                  src="/img/martino.svg"
+                  alt="martino"
+                  className="img-fluid"
+                />
               </div>
-              <div class="col-auto">
-                <img src="/img/virogan.svg" alt="virogen" class="img-fluid" />
+              <div className="col-auto">
+                <img
+                  src="/img/virogan.svg"
+                  alt="virogen"
+                  className="img-fluid"
+                />
               </div>
-              <div class="col-auto">
-                <img src="/img/vertex.svg" alt="vertex" class="img-fluid" />
+              <div className="col-auto">
+                <img src="/img/vertex.svg" alt="vertex" className="img-fluid" />
               </div>
-              <div class="col-auto">
-                <img src="/img/aromix.svg" alt="aromix" class="img-fluid" />
+              <div className="col-auto">
+                <img src="/img/aromix.svg" alt="aromix" className="img-fluid" />
               </div>
-              <div class="col-auto">
-                <img src="/img/fireli.svg" alt="freli" class="img-fluid" />
+              <div className="col-auto">
+                <img src="/img/fireli.svg" alt="freli" className="img-fluid" />
               </div>
-              <div class="col-auto text-white">Natroma</div>
+              <div className="col-auto text-white">Natroma</div>
             </div>
           </div>
         </div>

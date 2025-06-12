@@ -24,7 +24,8 @@ const UserSchema = new Schema<IUserDocument>(
       minlength: [8, 'Password must be at least 8 characters long']
     },
     avatar: {
-      type: String
+      type: String,
+      default: ''
     },
     gender: {
       type: String,

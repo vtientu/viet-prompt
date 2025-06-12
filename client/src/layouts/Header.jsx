@@ -1,7 +1,9 @@
 import React from "react";
 import "./header.css";
+import usePayment from "../hooks/usePayment";
 
 const Header = () => {
+  const { handleCreatePayment } = usePayment();
   return (
     <header className="main-header d-flex align-items-center p-3">
       <div className="logo me-3">
@@ -27,7 +29,9 @@ const Header = () => {
           </ul>
         </div>
         <div className="nav-item">
-          <a href="#">Dịch vụ</a>
+          <a href="#" onClick={() => handleCreatePayment(100000)}>
+            Dịch vụ
+          </a>
         </div>
         <div className="nav-item dropdown">
           <a href="#" className="dropdown-toggle" data-bs-toggle="dropdown">

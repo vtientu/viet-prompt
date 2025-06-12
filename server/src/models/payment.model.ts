@@ -31,10 +31,12 @@ const PaymentSchema = new Schema<IPaymentDocument>(
       default: null
     },
     paidAt: {
-      type: Date
+      type: Date,
+      default: null
     },
     note: {
-      type: String
+      type: String,
+      default: null
     }
   },
   {
