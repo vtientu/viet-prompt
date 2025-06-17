@@ -28,13 +28,13 @@ const FavouritePage = () => {
   useEffect(() => {
     const fetchPrompts = async () => {
       try {
-        const response = await http.get("/prompt/favourite", {
+        const response = await http.get("/package/favorites", {
           params: {
             categoryId: categoryId,
           },
         });
         if (response.status === 200) {
-          setPrompts(response.data.metadata);
+          setPrompts(response.data.metadata.packages);
         } else {
           toast.error(response.data.message || "Lỗi khi lấy dữ liệu");
         }
@@ -105,7 +105,7 @@ const FavouritePage = () => {
                       <img src={prompt.thumbnail.url} alt="Prompt 1" />
                       <div className="image-caption">
                         <img
-                          src={prompt.owner.avatar || "/img/avatar-default.svg"}
+                          src={prompt.user.avatar || "/img/avatar-default.svg"}
                           alt="Avatar"
                           className="avatar"
                           style={{
@@ -116,9 +116,7 @@ const FavouritePage = () => {
                             backgroundColor: "#fff",
                           }}
                         />
-                        <span className="username">
-                          {prompt.owner.fullName}
-                        </span>
+                        <span className="username">{prompt.user.fullName}</span>
                       </div>
                     </div>
                   ))}
@@ -133,7 +131,7 @@ const FavouritePage = () => {
               </div>
             </>
           ) : (
-            <div classNameName="label-no-data">Không có dữ liệu</div>
+            <div className="label-no-data">Không có dữ liệu</div>
           )}
         </main>
         <div className="dashboard__partners py-3 text-center">

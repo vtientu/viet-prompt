@@ -1,6 +1,32 @@
+import { toast } from "react-toastify";
 import "./transaction.css";
+import { useEffect, useState } from "react";
+import http from "../../api/http";
 
 const Transaction = () => {
+  const [payments, setPayments] = useState([]);
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const response = await http.get("/payment/owner");
+        if (response.status === 200) {
+          setPayments(response.data.metadata);
+        } else {
+          toast.error(
+            response.data.message || "Lỗi khi lấy danh sách giao dịch"
+          );
+        }
+      } catch (error) {
+        toast.error(
+          error.response.data.message || "Lỗi khi lấy danh sách giao dịch"
+        );
+      }
+    };
+
+    fetchPayments();
+  }, []);
+
   return (
     <section className="transaction-history-section">
       <div className="container-fluid">
@@ -13,9 +39,6 @@ const Transaction = () => {
 
             <div className="d-flex justify-content-between">
               <span className="title">Lịch sử giao dịch</span>
-              <div className="section-header">
-                <a href="#">See All</a>
-              </div>
             </div>
             <div className="transaction-history">
               <table>
@@ -28,33 +51,54 @@ const Transaction = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>
-                      <div className="user-info">
-                        <div className="avatar"></div>
-                        <div className="text">
-                          <div className="name">TÊN TÀI KHOẢN</div>
-                          <div className="date">25/2/2023</div>
+                  {payments.map((payment) => (
+                    <tr key={payment._id}>
+                      <td>
+                        <div className="user-info">
+                          <div className="avatar"></div>
+                          <div className="text">
+                            <div
+                              className="name"
+                              style={{
+                                margin: 0,
+                              }}
+                            >
+                              {payment.user.fullName}
+                            </div>
+                            <div className="date">
+                              {payment.paidAt
+                                ? new Date(payment.paidAt).toLocaleDateString(
+                                    "vi-VN",
+                                    {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                    }
+                                  )
+                                : ""}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="status frontend">FRONTEND</span>
-                    </td>
-                    <td>Understanding Concept Of React</td>
-                    <td>
-                      <button className="details-btn">SHOW DETAILS</button>
-                    </td>
-                  </tr>
+                      </td>
+                      <td>
+                        <span className="status frontend">
+                          {payment.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>{payment.package.name}</td>
+                      <td>
+                        <button className="details-btn">
+                          {payment.note || "Không có ghi chú"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
 
             <div className="d-flex justify-content-between">
               <span className="title">Thống Kê Hoạt Động</span>
-              <div className="section-header">
-                <a href="#">See All</a>
-              </div>
             </div>
 
             <div className="activity-stats">

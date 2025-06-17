@@ -54,7 +54,6 @@ export const authentication = asyncHandler(async (req: CustomRequest, res: Respo
   const authHeader = req.headers.authorization
 
   const accessToken = getTokenFromHeader(authHeader)
-  console.log(accessToken)
   if (!accessToken) {
     throw new UnauthorizedError()
   }

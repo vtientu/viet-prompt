@@ -26,15 +26,15 @@ const Profile = () => {
 
   const fetchPrompts = async () => {
     try {
-      const response = await http.get("/prompt/owner");
+      const response = await http.get("/package/owner");
       if (response.status === 200) {
-        setPrompts(response.data.metadata);
+        setPrompts(response.data.metadata.packages);
       } else {
-        toast.error("Lỗi khi lấy danh sách prompt");
+        toast.error("Lỗi khi lấy danh sách gói dịch vụ");
       }
     } catch (error) {
       toast.error(
-        error.response.data.message || "Lỗi khi lấy danh sách prompt"
+        error.response.data.message || "Lỗi khi lấy danh sách gói dịch vụ"
       );
     }
   };
@@ -159,7 +159,7 @@ const Profile = () => {
             </div>
 
             <div className="project-list">
-              {prompts.map((prompt) => (
+              {prompts?.map((prompt) => (
                 <div className="project-card" key={prompt._id}>
                   <div
                     className="project-img"
@@ -177,14 +177,16 @@ const Profile = () => {
                     <div
                       className="chamXanh"
                       style={{
-                        backgroundImage: `url(${prompt.owner.avatar})`,
+                        backgroundImage: `url(${
+                          prompt.user.avatar || "/img/avatar-default.svg"
+                        })`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
                       }}
                     ></div>
                     <div>
-                      {prompt.owner.firstName} {prompt.owner.lastName}
+                      {prompt.user.firstName} {prompt.user.lastName}
                       <br />
                     </div>
                   </div>

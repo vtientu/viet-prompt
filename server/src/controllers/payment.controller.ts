@@ -17,7 +17,7 @@ class PaymentController {
     new OK({
       message: 'Payment created successfully',
       metadata: await paymentService.createVnpayPayment({
-        userId: req.user._id,
+        user: req.user._id,
         currency: currency,
         ipAddress: req.ip || '127.0.0.1'
       })
@@ -65,6 +65,13 @@ class PaymentController {
         Message: 'System error'
       })
     }
+  }
+
+  public static async getPaymentOwner(req: CustomRequest, res: Response) {
+    new OK({
+      message: 'Payment fetched successfully',
+      metadata: await paymentService.getPaymentOwner(req.user._id)
+    }).send(res)
   }
 }
 

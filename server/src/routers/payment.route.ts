@@ -11,5 +11,6 @@ paymentRouter.get('/vnpay-ipn', asyncHandler(PaymentController.vnpayIpn))
 
 paymentRouter.use(authentication)
 paymentRouter.post('/create', asyncHandler(PaymentController.createPayment))
+paymentRouter.get('/owner', asyncHandler(PaymentController.getPaymentOwner))
 
 export default paymentRouter

@@ -371,6 +371,7 @@
   transition: background-color 0.3s ease, color 0.3s ease;
   height: 46.8px;
 }
+
 .label-no-data {
   color: #fff;
   font-size: 40px;
@@ -378,6 +379,7 @@
   margin-top: 50px;
   text-align: center;
 }
+
 .group-filter-buttons {
   display: flex;
   align-items: center;
@@ -500,6 +502,7 @@
   border-radius: 50%;
   border: 1px solid #fff;
 }
+
 .name {
   font-size: 30px;
   color: white;

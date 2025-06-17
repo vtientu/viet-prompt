@@ -7,7 +7,7 @@ export interface IPaymentDocument extends IPayment, Document {}
 
 const PaymentSchema = new Schema<IPaymentDocument>(
   {
-    userId: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
@@ -37,6 +37,11 @@ const PaymentSchema = new Schema<IPaymentDocument>(
     note: {
       type: String,
       default: null
+    },
+    package: {
+      type: Schema.Types.ObjectId,
+      ref: 'Package',
+      required: true
     }
   },
   {

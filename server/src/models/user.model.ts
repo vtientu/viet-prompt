@@ -45,7 +45,7 @@ const UserSchema = new Schema<IUserDocument>(
     },
     favorites: {
       type: [Schema.Types.ObjectId],
-      ref: 'Prompt',
+      ref: 'Package',
       default: []
     },
     isActive: {

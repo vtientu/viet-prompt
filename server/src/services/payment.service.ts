@@ -9,7 +9,7 @@ import PaymentModel from '@/models/payment.model.js'
 dotenv.config()
 
 interface VnpayPaymentData {
-  userId: string
+  user: string
   currency: string
   ipAddress: string
 }
@@ -41,6 +41,13 @@ class PaymentService {
     })
   }
 
+  async getPaymentOwner(userId: string) {
+    const payments = await PaymentModel.find({ user: userId })
+      .populate('user', 'firstName lastName avatar')
+      .populate('package', 'name')
+    return payments
+  }
+
   /**
    * Tạo một giao dịch thanh toán VNPay
    * @param {VnpayPaymentData} data - Dữ liệu thanh toán
@@ -51,11 +58,11 @@ class PaymentService {
       if (!this.vnp_HashSecret || !this.vnp_TmnCode || !this.vnp_Url || !this.vnp_ReturnUrl) {
         throw new Error('Missing VNPay configuration')
       }
-      const { userId, currency, ipAddress } = data
+      const { user, currency, ipAddress } = data
 
       const transactionCode = `VNP${moment().format('YYYYMMDDHHmmss')}${uuidv4().substring(0, 8)}`
       const payment = new PaymentModel({
-        userId: userId,
+        user: user,
         paymentMethod: 'cash',
         currency: currency,
         status: 'pending',
