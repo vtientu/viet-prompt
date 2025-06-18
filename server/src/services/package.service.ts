@@ -100,6 +100,7 @@ class PackageService {
       isActive: boolean
       thumbnail: IMedia
       images: IMedia[]
+      existingImages: string
     }>,
     thumbnailFile?: Express.Multer.File,
     imageFiles?: Express.Multer.File[]
@@ -113,18 +114,52 @@ class PackageService {
       throw new BadRequestError('Package không tồn tại hoặc không có quyền chỉnh sửa!')
     }
 
+    if (typeof updateData.prompts === 'string') {
+      try {
+        updateData.prompts = JSON.parse(updateData.prompts)
+      } catch (error) {
+        throw new BadRequestError('Dữ liệu prompts không hợp lệ!')
+      }
+    }
+
+    if (typeof updateData.tags === 'string') {
+      try {
+        updateData.tags = JSON.parse(updateData.tags)
+      } catch (error) {
+        throw new BadRequestError('Dữ liệu tags không hợp lệ!')
+      }
+    }
+
+    let existingImages: IMedia[] = []
+    if (typeof updateData.existingImages === 'string') {
+      try {
+        existingImages = JSON.parse(updateData.existingImages)
+        delete updateData.existingImages
+      } catch (error) {
+        throw new BadRequestError('Dữ liệu ảnh không hợp lệ!')
+      }
+    }
+
     if (thumbnailFile) {
       const newThumbnail = await UploadService.uploadAvatar(thumbnailFile)
       updateData.thumbnail = this.toMedia(newThumbnail)
     }
 
+    const newImages: IMedia[] = []
     if (imageFiles?.length) {
-      const newImages = []
       for (const file of imageFiles) {
         const uploadedImage = await UploadService.uploadAvatar(file)
         newImages.push(this.toMedia(uploadedImage))
       }
-      updateData.images = newImages
+    }
+
+    updateData.images = [...existingImages, ...newImages]
+
+    if (Array.isArray(updateData.prompts)) {
+      updateData.prompts = updateData.prompts.map(({ question, answer }) => ({
+        question,
+        answer
+      }))
     }
 
     const updatedPackage = await PackageModel.findByIdAndUpdate(
@@ -141,16 +176,22 @@ class PackageService {
   }
 
   public static async deletePackage(packageId: string, userId: string): Promise<void> {
+    const userFind = await UserModel.findById(userId)
+
+    if (!userFind) {
+      throw new BadRequestError('User không tồn tại!')
+    }
+
     const existingPackage = await PackageModel.findOne({
       _id: packageId,
       user: userId
     })
 
-    if (!existingPackage) {
+    if (!existingPackage && userFind.role !== 'admin') {
       throw new BadRequestError('Package không tồn tại hoặc không có quyền xóa!')
     }
 
-    await PackageModel.deleteOne({ _id: packageId })
+    await PackageModel.findByIdAndUpdate(packageId, { isActive: false })
   }
 
   public static async getPackages(query: {

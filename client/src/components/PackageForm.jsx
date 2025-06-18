@@ -12,16 +12,18 @@ import {
 } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import http from "../api/http";
+import { toast } from "react-toastify";
 
 const { TextArea } = Input;
 
-const PackageForm = ({ visible, onCancel, initialValues = null }) => {
+const PackageForm = ({ visible, onCancel, initialValues = null, reset }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [inputTag, setInputTag] = useState("");
   const [prompts, setPrompts] = useState([{ question: "", answer: "" }]);
+  const [existingImages, setExistingImages] = useState([]);
 
   const handleClose = () => {
     form.resetFields();
@@ -35,49 +37,103 @@ const PackageForm = ({ visible, onCancel, initialValues = null }) => {
       setLoading(true);
       const values = await form.validateFields();
 
-      if (!values.thumbnail || !values.thumbnail[0]?.originFileObj) {
-        alert("Vui lòng tải lên ảnh đại diện!");
+      // Kiểm tra thumbnail chỉ khi là form tạo mới hoặc có upload ảnh mới
+      if (!initialValues && (!values.thumbnail || !values.thumbnail[0])) {
+        toast.warning("Vui lòng tải lên ảnh đại diện!");
         setLoading(false);
         return;
       }
 
-      // Xử lý tags và prompts
+      // Lọc và kiểm tra prompts hợp lệ
+      const validPrompts = prompts
+        .filter((p) => p.question?.trim() && p.answer?.trim())
+        .map(({ question, answer }) => ({
+          question: question.trim(),
+          answer: answer.trim(),
+        }));
+
+      if (validPrompts.length === 0) {
+        toast.warning("Vui lòng thêm ít nhất một prompt hợp lệ!");
+        setLoading(false);
+        return;
+      }
+
+      // Xử lý dữ liệu form
       const formData = new FormData();
-      Object.keys(values).forEach((key) => {
-        if (key !== "thumbnail" && key !== "images") {
+
+      // Xử lý các trường dữ liệu cơ bản
+      const { thumbnail, images, ...restValues } = values;
+      Object.keys(restValues).forEach((key) => {
+        if (key === "category") {
+          // Đảm bảo category là string ID
+          formData.append("category", values.category._id || values.category);
+        } else {
           formData.append(key, values[key]);
         }
       });
 
       // Thêm tags và prompts
+      formData.delete("tags");
+      formData.delete("prompts");
       formData.append("tags", JSON.stringify(tags));
-      formData.append(
-        "prompts",
-        JSON.stringify(prompts.filter((p) => p.question && p.answer))
-      );
+      formData.append("prompts", JSON.stringify(validPrompts));
 
-      // Xử lý files
+      // Xử lý files - chỉ gửi file mới
       if (values.thumbnail?.[0]?.originFileObj) {
         formData.append("thumbnail", values.thumbnail[0].originFileObj);
       }
-      if (values.images?.length) {
-        values.images.forEach((file) => {
+
+      // Xử lý danh sách ảnh
+      const currentImages = values.images || [];
+      const remainingExistingImages = currentImages
+        .filter((img) => !img.originFileObj) // Lọc ra những ảnh cũ còn giữ lại
+        .map((img) =>
+          existingImages.find((existing) => existing.public_id === img.uid)
+        )
+        .filter(Boolean);
+
+      // Thêm ảnh cũ còn giữ lại
+      formData.append(
+        "existingImages",
+        JSON.stringify(remainingExistingImages)
+      );
+
+      // Thêm ảnh mới
+      if (currentImages.length) {
+        currentImages.forEach((file) => {
           if (file.originFileObj) {
             formData.append("images", file.originFileObj);
           }
         });
       }
 
-      await http.post("/package", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      //   form.resetFields();
-      setTags([]);
-      setPrompts([{ question: "", answer: "" }]);
+      const response = initialValues
+        ? await http.put(`/package/${initialValues._id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+        : await http.post("/package", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+
+      if (response.status === 200 || response.status === 201) {
+        reset();
+        handleClose();
+        toast.success(
+          response.data.message ||
+            `${initialValues ? "Cập nhật" : "Tạo"} gói dịch vụ thành công`
+        );
+      } else {
+        toast.error(
+          response.data.message ||
+            `Lỗi khi ${initialValues ? "cập nhật" : "tạo"} gói dịch vụ`
+        );
+      }
     } catch (error) {
       console.error("Form validation failed:", error);
+      toast.error(
+        error.response?.data?.message ||
+          `Lỗi khi ${initialValues ? "cập nhật" : "tạo"} gói dịch vụ`
+      );
     } finally {
       setLoading(false);
     }
@@ -108,15 +164,32 @@ const PackageForm = ({ visible, onCancel, initialValues = null }) => {
     setPrompts(newPrompts);
   };
 
+  const convertImageToUploadFormat = (image) => {
+    if (!image) return null;
+    return {
+      uid: image.public_id,
+      name: image.public_id,
+      status: "done",
+      url: image.secure_url,
+    };
+  };
+
   useEffect(() => {
     if (initialValues) {
-      form.setFieldsValue({
+      const formValues = {
         ...initialValues,
-        thumbnail: undefined, // Reset file inputs
-        images: undefined,
-      });
+        category: initialValues.category?._id || initialValues.category,
+        thumbnail: initialValues.thumbnail
+          ? [convertImageToUploadFormat(initialValues.thumbnail)]
+          : undefined,
+        images: initialValues.images
+          ? initialValues.images.map(convertImageToUploadFormat)
+          : undefined,
+      };
+      form.setFieldsValue(formValues);
       setTags(initialValues.tags || []);
       setPrompts(initialValues.prompts || [{ question: "", answer: "" }]);
+      setExistingImages(initialValues.images || []);
     }
   }, [initialValues, form]);
 

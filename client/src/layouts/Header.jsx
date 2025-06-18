@@ -1,11 +1,9 @@
 import React from "react";
 import "./header.css";
 import usePayment from "../hooks/usePayment";
-import PackageForm from "../components/PackageForm";
 import { useState } from "react";
 
 const Header = () => {
-  const [visible, setVisible] = useState(false);
   const { handleCreatePayment } = usePayment();
   return (
     <header className="main-header d-flex align-items-center p-3">
@@ -48,11 +46,10 @@ const Header = () => {
             </li>
           </ul>
         </div>
-        <div className="nav-item" onClick={() => setVisible(true)}>
+        <div className="nav-item">
           <a href="#">Tạo gói</a>
         </div>
       </nav>
-      <PackageForm visible={visible} onCancel={() => setVisible(false)} />
     </header>
   );
 };

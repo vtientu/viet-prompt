@@ -15,6 +15,8 @@ import Authentication from "./Authentication";
 import Contact from "./pages/Contact";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
+import PackageManager from "./pages/Admin/PackageManager";
+import PackageDetails from "./pages/PackageDetails";
 
 function App() {
   return (
@@ -104,5 +106,15 @@ const PrivateRoute = [
     path: "/transaction",
     element: <Transaction />,
     layout: InformationLayout,
+  },
+  {
+    path: "/package-manager",
+    element: <PackageManager />,
+    layout: InformationLayout,
+  },
+  {
+    path: "/package/:id",
+    element: <PackageDetails />,
+    layout: MainLayout,
   },
 ];

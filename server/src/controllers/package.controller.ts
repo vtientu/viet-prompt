@@ -57,7 +57,7 @@ class PackageController {
 
   public static async deletePackage(req: CustomRequest, res: Response) {
     const { id } = req.params
-    await PackageService.deletePackage(id, req.user.id)
+    await PackageService.deletePackage(id, req.user._id)
 
     new OK({
       message: 'Xóa package thành công!'

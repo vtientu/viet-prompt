@@ -8,7 +8,7 @@ const packageRouter = Router()
 
 // Public routes
 packageRouter.get('/', asyncHandler(PackageController.getPackages))
-
+packageRouter.get('/detail/:id', asyncHandler(PackageController.getPackageDetail))
 // Protected routes
 packageRouter.use(authentication)
 
