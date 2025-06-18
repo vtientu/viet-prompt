@@ -3,10 +3,35 @@ import "./packageDetails.css";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import http from "../../api/http";
+import { useAuthStore } from "../../store/authStore";
+import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 const PackageDetails = () => {
+  const user = useAuthStore((state) => state.user);
   const { id } = useParams();
   const [packageDetail, setPackageDetail] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const handleFavorite = async () => {
+    try {
+      const response = await http.put(`/package/favorite/${id}`);
+      if (response.status === 200) {
+        toast.success(
+          isFavorite
+            ? "Bỏ khỏi danh sách yêu thích thành công"
+            : "Thêm vào danh sách yêu thích thành công"
+        );
+        setIsFavorite(!isFavorite);
+      } else {
+        toast.error(response.data.message || "Lỗi khi yêu thích gói dịch vụ");
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Lỗi khi yêu thích gói dịch vụ"
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchPackage = async () => {
@@ -27,6 +52,12 @@ const PackageDetails = () => {
     };
     fetchPackage();
   }, [id]);
+
+  useEffect(() => {
+    if (user && packageDetail) {
+      setIsFavorite(user?.favorites?.includes(packageDetail?._id));
+    }
+  }, [user, packageDetail]);
 
   return (
     <section className="detail-prompt-section p-5">
@@ -54,27 +85,38 @@ const PackageDetails = () => {
           </div>
           <div className="row g-3 mb-4">
             <div className="col-lg-8">
-              {packageDetail?.images?.map((image, index) => (
-                <div
-                  key={index}
-                  style={{
-                    width: "100%",
-                    position: "relative",
-                    aspectRatio: "16/9",
-                  }}
-                >
-                  <img
-                    src={image.url}
+              <Swiper
+                // install Swiper modules
+                modules={[Navigation, Pagination, Scrollbar, A11y]}
+                spaceBetween={0}
+                slidesPerView={1}
+                loop={true}
+                navigation
+                pagination={{ clickable: true }}
+                scrollbar={{ draggable: true }}
+              >
+                {packageDetail?.images?.map((image, index) => (
+                  <SwiperSlide
                     key={index}
-                    alt={packageDetail?.name}
                     style={{
                       width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
+                      position: "relative",
+                      aspectRatio: "16/9",
                     }}
-                  />
-                </div>
-              ))}
+                  >
+                    <img
+                      src={image.url}
+                      key={index}
+                      alt={packageDetail?.name}
+                      style={{
+                        objectFit: "cover",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </div>
             <div className="col-lg-4">
               <div className="artist-info-block text-white h-100">
@@ -105,16 +147,35 @@ const PackageDetails = () => {
                     </div>
                   </div>
                 </div>
-                <div className="d-flex flex-column">
-                  <button className="btn btn-add-favorite mb-3">
-                    Thêm vào yêu thích
-                  </button>
-                  <button className="btn btn-create-prompt mb-3">
-                    Tạo Prompt tương tự
-                  </button>
-                </div>
+                {user && (
+                  <div className="d-flex flex-column">
+                    <button
+                      className="btn btn-add-favorite mb-3"
+                      onClick={handleFavorite}
+                    >
+                      {isFavorite
+                        ? "Bỏ khỏi danh sách yêu thích"
+                        : "Thêm vào danh sách yêu thích"}
+                    </button>
+                    <button className="btn btn-create-prompt mb-3">
+                      Tạo Prompt tương tự
+                    </button>
+                  </div>
+                )}
                 <div className="group-Exclusive-Version-Details">
-                  <div className="verified-text">Verified: 2025/03/15</div>
+                  <div className="verified-text">
+                    Created:{" "}
+                    {packageDetail?.createdAt
+                      ? new Date(packageDetail.createdAt).toLocaleDateString(
+                          "vi-VN",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          }
+                        )
+                      : "N/A"}
+                  </div>
                   <div className="exclusive-details-block">
                     <div className="exclusive-title">
                       Exclusive Version Details
@@ -122,20 +183,22 @@ const PackageDetails = () => {
                     <div className="content-grid">
                       <div></div>
                       <div className="value">
-                        <span className="lora-badge">LORA</span>
-                        <div>968</div>
+                        <span className="lora-badge">PRICE</span>
+                        <div>
+                          {packageDetail?.price?.toLocaleString("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
+                        </div>
                       </div>
 
-                      <div>Downloads</div>
+                      <div>Category</div>
                       <div className="value">
-                        Downloading disabled by author
+                        {packageDetail?.category?.name}
                       </div>
-
-                      <div>Base Model</div>
-                      <div className="value">FLUX1</div>
 
                       <div>Description</div>
-                      <div className="value"></div>
+                      <div className="value">{packageDetail?.description}</div>
                     </div>
                   </div>
                 </div>

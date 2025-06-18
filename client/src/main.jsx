@@ -6,6 +6,10 @@ import { ToastContainer } from "react-toastify";
 import { Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter } from "react-router-dom";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
 
 createRoot(document.getElementById("root")).render(
   // <StrictMode>

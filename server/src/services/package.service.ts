@@ -22,7 +22,7 @@ class PackageService {
   }
 
   public static async getPackageOwner(userId: string) {
-    const packages = await PackageModel.find({ user: userId })
+    const packages = await PackageModel.find({ user: userId, isActive: true })
       .populate('category')
       .populate('user', 'firstName lastName avatar')
     return packages
@@ -36,11 +36,36 @@ class PackageService {
     }
 
     const favoritesArray = Array.isArray(user.favorites) ? user.favorites : []
-    const query = categoryId ? { _id: { $in: favoritesArray }, category: categoryId } : { _id: { $in: favoritesArray } }
+    const query = categoryId
+      ? { _id: { $in: favoritesArray }, category: categoryId, isActive: true }
+      : { _id: { $in: favoritesArray }, isActive: true }
 
-    const packages = await PackageModel.find(query).populate('category').populate('user', 'firstName lastName avatar')
+    const packages = await PackageModel.find(query)
+      .populate('category')
+      .populate('user', 'firstName lastName avatar')
+      .sort({ createdAt: -1 })
 
     return packages
+  }
+
+  public static async favoritePackage(packageId: string, userId: string) {
+    const package_ = await PackageModel.findById(packageId)
+    if (!package_) {
+      throw new BadRequestError('Package không tồn tại!')
+    }
+    const user = await UserModel.findById(userId)
+    if (!user) {
+      throw new BadRequestError('User không tồn tại!')
+    }
+
+    if (user.favorites.includes(new Types.ObjectId(packageId))) {
+      user.favorites = user.favorites.filter((id) => id.toString() !== packageId)
+    } else {
+      user.favorites.push(new Types.ObjectId(packageId))
+    }
+    await user.save()
+
+    return user
   }
 
   public static async createPackage(

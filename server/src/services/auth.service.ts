@@ -69,7 +69,7 @@ class AuthService {
     await newKeyToken.save()
 
     return {
-      user: pickFields(user, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified']),
+      user: pickFields(user, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified', 'favorites']),
       tokens
     }
   }
@@ -104,7 +104,7 @@ class AuthService {
     await newUser.save()
 
     return {
-      user: pickFields(newUser, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified'])
+      user: pickFields(newUser, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified', 'favorites'])
     }
   }
 
@@ -215,7 +215,16 @@ class AuthService {
     })
 
     return {
-      user: pickFields(userFound, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified']),
+      user: pickFields(userFound, [
+        '_id',
+        'email',
+        'fullName',
+        'avatar',
+        'role',
+        'isPremium',
+        'isVerified',
+        'favorites'
+      ]),
       tokens
     }
   }

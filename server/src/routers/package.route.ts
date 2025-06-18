@@ -18,6 +18,7 @@ const uploadFields = upload.fields([
   { name: 'images', maxCount: 5 }
 ])
 
+packageRouter.put('/favorite/:id', asyncHandler(PackageController.favoritePackage))
 packageRouter.post('/', uploadFields, asyncHandler(PackageController.createPackage))
 packageRouter.put('/:id', uploadFields, asyncHandler(PackageController.updatePackage))
 packageRouter.delete('/:id', asyncHandler(PackageController.deletePackage))

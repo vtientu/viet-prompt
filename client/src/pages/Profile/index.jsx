@@ -4,11 +4,12 @@ import http from "../../api/http";
 import { toast } from "react-toastify";
 import ProfileForm from "./ProfileForm";
 import { useAuthStore } from "../../store/authStore";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { user, setUser } = useAuthStore();
   const [prompts, setPrompts] = useState([]);
-
+  const navigate = useNavigate();
   const fetchProfile = async () => {
     try {
       const response = await http.get("/user/profile");
@@ -160,7 +161,11 @@ const Profile = () => {
 
             <div className="project-list">
               {prompts?.map((prompt) => (
-                <div className="project-card" key={prompt._id}>
+                <div
+                  className="project-card"
+                  key={prompt._id}
+                  onClick={() => navigate(`/package/${prompt._id}`)}
+                >
                   <div
                     className="project-img"
                     style={{

@@ -13,6 +13,15 @@ class PackageController {
     }).send(res)
   }
 
+  public static async favoritePackage(req: CustomRequest, res: Response) {
+    const { id } = req.params
+    const package_ = await PackageService.favoritePackage(id, req.user._id)
+    new OK({
+      message: 'Yêu thích package thành công!',
+      metadata: { package: package_ }
+    }).send(res)
+  }
+
   public static async getPackageOwner(req: CustomRequest, res: Response) {
     console.log(req.user)
     const packages = await PackageService.getPackageOwner(req.user._id)

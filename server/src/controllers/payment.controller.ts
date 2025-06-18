@@ -7,8 +7,8 @@ import { Response } from 'express'
 
 class PaymentController {
   public static async createPayment(req: CustomRequest, res: Response) {
-    const { currency, paymentMethod, status } = req.body
-    const { error } = paymentSchema.safeParse({ currency, paymentMethod, status })
+    const { currency, paymentMethod, status, packageId } = req.body
+    const { error } = paymentSchema.safeParse({ currency, paymentMethod, status, packageId })
 
     if (error) {
       throw new BadRequestError(error.errors.map((err) => err.message).join(', '))
@@ -19,7 +19,8 @@ class PaymentController {
       metadata: await paymentService.createVnpayPayment({
         user: req.user._id,
         currency: currency,
-        ipAddress: req.ip || '127.0.0.1'
+        ipAddress: req.ip || '127.0.0.1',
+        packageId
       })
     }).send(res)
   }

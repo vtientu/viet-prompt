@@ -47,7 +47,7 @@ const Header = () => {
           </ul>
         </div>
         <div className="nav-item">
-          <a href="#">Tạo gói</a>
+          <a href="/profile">Thông tin cá nhân</a>
         </div>
       </nav>
     </header>

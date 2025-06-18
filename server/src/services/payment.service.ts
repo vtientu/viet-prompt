@@ -12,6 +12,7 @@ interface VnpayPaymentData {
   user: string
   currency: string
   ipAddress: string
+  packageId: string
 }
 
 interface VnpParams {
@@ -44,7 +45,7 @@ class PaymentService {
   async getPaymentOwner(userId: string) {
     const payments = await PaymentModel.find({ user: userId })
       .populate('user', 'firstName lastName avatar')
-      .populate('package', 'name')
+      .populate('package', 'name price')
     return payments
   }
 
@@ -58,7 +59,7 @@ class PaymentService {
       if (!this.vnp_HashSecret || !this.vnp_TmnCode || !this.vnp_Url || !this.vnp_ReturnUrl) {
         throw new Error('Missing VNPay configuration')
       }
-      const { user, currency, ipAddress } = data
+      const { user, currency, ipAddress, packageId } = data
 
       const transactionCode = `VNP${moment().format('YYYYMMDDHHmmss')}${uuidv4().substring(0, 8)}`
       const payment = new PaymentModel({
@@ -66,7 +67,8 @@ class PaymentService {
         paymentMethod: 'cash',
         currency: currency,
         status: 'pending',
-        transactionCode: transactionCode
+        transactionCode: transactionCode,
+        package: packageId
       })
       await payment.save()
       const vnp_Params: VnpParams = {

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "./favourite.css";
 import http from "../../api/http";
 import { toast } from "react-toastify";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
 
 const FavouritePage = () => {
   const [prompts, setPrompts] = useState([]);
@@ -98,11 +100,35 @@ const FavouritePage = () => {
           </div>
           {prompts.length > 0 ? (
             <>
-              <div className="swiper mySwiper mt-4">
-                <div className="swiper-wrapper">
+              <div className="mt-4">
+                <Swiper
+                  slidesPerView={3}
+                  spaceBetween={50}
+                  pagination={{
+                    clickable: true,
+                  }}
+                  modules={[Pagination]}
+                  loop={true}
+                >
                   {prompts.map((prompt, index) => (
-                    <div className="swiper-slide" key={index}>
-                      <img src={prompt.thumbnail.url} alt="Prompt 1" />
+                    <SwiperSlide key={index}>
+                      <div
+                        style={{
+                          height: 300,
+                          position: "relative",
+                          aspectRatio: "3/4",
+                        }}
+                      >
+                        <img
+                          src={prompt.thumbnail.url}
+                          alt="Prompt 1"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </div>
                       <div className="image-caption">
                         <img
                           src={prompt.user.avatar || "/img/avatar-default.svg"}
@@ -118,10 +144,9 @@ const FavouritePage = () => {
                         />
                         <span className="username">{prompt.user.fullName}</span>
                       </div>
-                    </div>
+                    </SwiperSlide>
                   ))}
-                </div>
-                <div className="swiper-pagination mt-3"></div>
+                </Swiper>
               </div>
 
               <div className="carousel-controls text-center mt-3">
