@@ -1,10 +1,14 @@
 import React from "react";
 import "./header.css";
 import usePayment from "../hooks/usePayment";
-import { useState } from "react";
+import { useAuthStore } from "../store/authStore";
+import { useAuthActions } from "../hooks/useAuthActions";
 
 const Header = () => {
   const { handleCreatePayment } = usePayment();
+  const { user } = useAuthStore();
+  const { logout } = useAuthActions();
+
   return (
     <header className="main-header d-flex align-items-center p-3">
       <div className="logo me-3">
@@ -30,25 +34,46 @@ const Header = () => {
           </ul>
         </div>
         <div className="nav-item">
-          <a href="#" onClick={() => handleCreatePayment(100000)}>
-            Dịch vụ
-          </a>
+          <a href="#">Dịch vụ</a>
         </div>
         <div className="nav-item dropdown">
           <a href="#" className="dropdown-toggle" data-bs-toggle="dropdown">
             Đăng ký
           </a>
           <ul className="dropdown-menu">
-            <li>
-              <a className="dropdown-item" href="#">
-                Gói A
-              </a>
+            <li
+              className="dropdown-item"
+              onClick={() =>
+                handleCreatePayment(100000, "6847b4add6f07e889ea0fb2d")
+              }
+            >
+              Gói A (100.000đ)
             </li>
           </ul>
         </div>
-        <div className="nav-item">
-          <a href="/profile">Thông tin cá nhân</a>
-        </div>
+        {user ? (
+          <div className="nav-item dropdown">
+            <a
+              href="/profile"
+              className="dropdown-toggle"
+              data-bs-toggle="dropdown"
+            >
+              {user.fullName}
+            </a>
+            <ul className="dropdown-menu">
+              <li className="dropdown-item">
+                <a href="/profile">Hồ sơ cá nhân</a>
+              </li>
+              <li className="dropdown-item" onClick={logout}>
+                Đăng xuất
+              </li>
+            </ul>
+          </div>
+        ) : (
+          <div className="nav-item">
+            <a href="/login">Đăng nhập</a>
+          </div>
+        )}
       </nav>
     </header>
   );

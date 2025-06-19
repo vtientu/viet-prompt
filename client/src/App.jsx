@@ -17,25 +17,28 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import PackageManager from "./pages/Admin/PackageManager";
 import PackageDetails from "./pages/PackageDetails";
+import Provider from "./Provider";
 
 function App() {
   return (
     <Routes>
-      {PublicRoute.map((route, index) => (
-        <Route
-          key={index}
-          path={route.path}
-          element={<route.layout>{route.element}</route.layout>}
-        />
-      ))}
-      <Route path="/" element={<Authentication />}>
-        {PrivateRoute.map((route, index) => (
+      <Route path="/" element={<Provider />}>
+        {PublicRoute.map((route, index) => (
           <Route
             key={index}
             path={route.path}
             element={<route.layout>{route.element}</route.layout>}
           />
         ))}
+        <Route path="/" element={<Authentication />}>
+          {PrivateRoute.map((route, index) => (
+            <Route
+              key={index}
+              path={route.path}
+              element={<route.layout>{route.element}</route.layout>}
+            />
+          ))}
+        </Route>
       </Route>
     </Routes>
   );
@@ -71,7 +74,7 @@ export const PublicRoute = [
   },
 ];
 
-const PrivateRoute = [
+export const PrivateRoute = [
   {
     path: "/profile",
     element: <Profile />,

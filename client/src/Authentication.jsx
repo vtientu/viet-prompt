@@ -2,11 +2,8 @@ import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import http from "./api/http";
 import { useAuthStore } from "./store/authStore";
-import { PublicRoute } from "./App";
-import { useAuthActions } from "./hooks/useAuthActions";
 
 const Authentication = () => {
-  const { fetchProfile } = useAuthActions();
   const { logout } = useAuthStore();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -16,9 +13,7 @@ const Authentication = () => {
     const fetchValidToken = async () => {
       try {
         const response = await http.get("/auth/verify-token");
-        if (response.status === 200) {
-          await fetchProfile();
-        } else {
+        if (response.status !== 200) {
           logout();
           navigate("/login");
         }
@@ -30,9 +25,7 @@ const Authentication = () => {
     };
 
     if (!token) {
-      if (PublicRoute.every((route) => route.path !== pathname)) {
-        navigate("/login");
-      }
+      navigate("/login");
     } else {
       fetchValidToken();
     }

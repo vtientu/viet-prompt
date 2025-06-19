@@ -14,6 +14,7 @@ const InformationLayout = ({ children }) => {
       <div
         style={{
           display: "flex",
+          width: "100%",
         }}
       >
         <Sidebar />

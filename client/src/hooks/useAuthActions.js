@@ -3,24 +3,36 @@ import { useAuthStore } from "../store/authStore";
 import { toast } from "react-toastify";
 
 export function useAuthActions() {
-  const { setUser, setIsAuthenticated } = useAuthStore();
+  const { setUser, logout: logoutStore } = useAuthStore();
   const fetchProfile = async () => {
     try {
       const response = await http.get("/user/profile");
       if (response.status === 200) {
         setUser(response.data.metadata);
       } else {
-        setUser(null);
-        setIsAuthenticated(false);
+        logoutStore();
       }
     } catch (error) {
-      toast.error(
-        error.response.data.message || "Lỗi khi lấy thông tin người dùng"
-      );
-      setUser(null);
-      setIsAuthenticated(false);
+      console.log(error);
+      logoutStore();
     }
   };
 
-  return { fetchProfile };
+  const logout = async () => {
+    try {
+      const response = await http.post("/auth/logout");
+      if (response.status === 200) {
+        toast.success("Đăng xuất thành công");
+        logoutStore();
+        navigate("/login");
+      } else {
+        toast.error(response.data.message || "Lỗi khi đăng xuất");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message || "Lỗi khi đăng xuất");
+    }
+  };
+
+  return { fetchProfile, logout };
 }

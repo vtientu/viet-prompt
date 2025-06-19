@@ -4,8 +4,10 @@ import http from "../../api/http";
 import { toast } from "react-toastify";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
+import { useNavigate } from "react-router-dom";
 
 const FavouritePage = () => {
+  const navigate = useNavigate();
   const [prompts, setPrompts] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState([]);
@@ -49,7 +51,10 @@ const FavouritePage = () => {
   }, [categoryId]);
 
   return (
-    <section className="favourite-section ">
+    <section
+      className="favourite-section"
+      style={{ width: "calc(100% - 250px)" }}
+    >
       <div className="container-fluid">
         <main className="dashboard__main">
           <span className="name">Bộ lọc</span>
@@ -108,13 +113,14 @@ const FavouritePage = () => {
                     clickable: true,
                   }}
                   modules={[Pagination]}
-                  loop={true}
                 >
                   {prompts.map((prompt, index) => (
-                    <SwiperSlide key={index}>
+                    <SwiperSlide
+                      key={index}
+                      onClick={() => navigate(`/package/${prompt._id}`)}
+                    >
                       <div
                         style={{
-                          height: 300,
                           position: "relative",
                           aspectRatio: "3/4",
                         }}

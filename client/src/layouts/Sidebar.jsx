@@ -6,7 +6,12 @@ const Sidebar = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   return (
-    <aside className="sidebar col-md-2 p-3">
+    <aside
+      className="sidebar p-3"
+      style={{
+        minWidth: "250px",
+      }}
+    >
       <div className="sidebar__header">
         <div
           className="avatar"

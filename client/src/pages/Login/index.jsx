@@ -59,6 +59,7 @@ const LoginPage = () => {
             "user",
             JSON.stringify(response.data.metadata.user)
           );
+          localStorage.setItem("clientId", response.data.metadata.user._id);
           login(
             response.data.metadata.user,
             response.data.metadata.tokens.accessToken
@@ -118,7 +119,10 @@ const LoginPage = () => {
           </div>
 
           <div className="col-md-4 d-flex">
-            <div className="bg-white p-4 shadow rounded">
+            <div
+              className="bg-white p-4 shadow rounded"
+              style={{ width: "100%" }}
+            >
               <div className="text-left mb-3">
                 <img
                   src="/img/logo.png"
@@ -165,8 +169,8 @@ const LoginPage = () => {
                 </div>
                 <div className="text-center" style={{ color: "black" }}>
                   Already a member?
-                  <a href="#" className="text-decoration-none">
-                    Login
+                  <a href="/register" className="text-decoration-none">
+                    Register
                   </a>
                   . By creating an account, you agree to our Terms Of Service,
                   and to receive emails and updates.

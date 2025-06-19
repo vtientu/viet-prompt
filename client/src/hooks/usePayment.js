@@ -1,9 +1,13 @@
+import { toast } from "react-toastify";
 import http from "../api/http";
 
 const usePayment = () => {
-  const handleCreatePayment = async (currency) => {
+  const handleCreatePayment = async (currency, packageId) => {
     try {
-      const response = await http.post("/payment/create", { currency });
+      const response = await http.post("/payment/create", {
+        currency,
+        packageId,
+      });
       if (response.status === 200) {
         window.location.href = response.data.metadata.paymentUrl;
       } else {
