@@ -6,12 +6,14 @@ import http from "../../api/http";
 import { useAuthStore } from "../../store/authStore";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import usePayment from "../../hooks/usePayment";
 
 const PackageDetails = () => {
   const user = useAuthStore((state) => state.user);
   const { id } = useParams();
   const [packageDetail, setPackageDetail] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const { handleCreatePayment } = usePayment();
 
   const handleFavorite = async () => {
     try {
@@ -157,6 +159,19 @@ const PackageDetails = () => {
                         ? "Bỏ khỏi danh sách yêu thích"
                         : "Thêm vào danh sách yêu thích"}
                     </button>
+                    {user._id === packageDetail?.user?._id && (
+                      <button
+                        className="btn btn-create-prompt mb-3"
+                        onClick={() =>
+                          handleCreatePayment(
+                            packageDetail?.price,
+                            packageDetail?._id
+                          )
+                        }
+                      >
+                        Mua
+                      </button>
+                    )}
                     <button className="btn btn-create-prompt mb-3">
                       Tạo Prompt tương tự
                     </button>

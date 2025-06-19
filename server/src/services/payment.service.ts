@@ -46,6 +46,7 @@ class PaymentService {
     const payments = await PaymentModel.find({ user: userId })
       .populate('user', 'firstName lastName avatar')
       .populate('package', 'name price')
+      .sort({ createdAt: -1 })
     return payments
   }
 
