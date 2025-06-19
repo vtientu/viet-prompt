@@ -16,6 +16,7 @@ import {
 import { sendPasswordResetEmail } from '@/utils/email.util.js'
 import { pickFields } from '@/utils/index.js'
 import bcrypt from 'bcryptjs'
+import crypto from 'node:crypto'
 
 class AuthService {
   /**
@@ -36,7 +37,7 @@ class AuthService {
       throw new BadRequestError(error.message)
     }
 
-    const user = await UserModel.findOne({ email, isActive: true }).lean({ virtuals: true })
+    const user = await UserModel.findOne({ email, isActive: true })
 
     // 1
     if (!user) {
@@ -50,8 +51,8 @@ class AuthService {
     }
 
     // 3
-    const accessKeyToken = process.env.ACCESS_TOKEN_SECRET as string
-    const refreshKeyToken = process.env.REFRESH_TOKEN_SECRET as string
+    const accessKeyToken = crypto.randomBytes(64).toString('hex')
+    const refreshKeyToken = crypto.randomBytes(64).toString('hex')
 
     // 4
     const tokens = createTokensPair({
@@ -173,7 +174,7 @@ class AuthService {
     if (!keyToken) {
       throw new BadRequestError('Invalid key token!')
     }
-
+    
     return await KeyTokenModel.deleteOne({ _id: keyToken._id })
   }
 

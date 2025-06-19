@@ -1,4 +1,4 @@
-import { BadRequestError, NotFoundError, UnauthorizedError } from '@/core/error.response.js'
+import { BadRequestError, ForbiddenError, NotFoundError } from '@/core/error.response.js'
 import { OK } from '@/core/success.response.js'
 import { CustomRequest } from '@/interfaces/request.interface.js'
 import { updateProfileSchema } from '@/schema/user.schema.js'
@@ -10,7 +10,7 @@ class UserController {
     const userId = req.user._id.toString()
 
     if (!userId) {
-      throw new UnauthorizedError('Unauthorized')
+      throw new ForbiddenError('Forbidden')
     }
 
     const profile = await UserService.getUser(userId)

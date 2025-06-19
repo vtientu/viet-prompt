@@ -3,9 +3,7 @@ import { UpdateProfileSchema } from '@/schema/user.schema.js'
 
 class UserService {
   public static async getUser(userId: string) {
-    const user = await UserModel.findById(userId).select('-password').lean({
-      virtuals: true
-    })
+    const user = await UserModel.findById(userId).select('-password')
     if (!user) {
       throw new Error('User not found')
     }
