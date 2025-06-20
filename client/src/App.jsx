@@ -16,8 +16,11 @@ import Contact from "./pages/Contact";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import PackageManager from "./pages/Admin/PackageManager";
+import UserManager from "./pages/Admin/UserManager";
 import PackageDetails from "./pages/PackageDetails";
 import Provider from "./Provider";
+import PaymentManager from "./pages/Admin/PaymentManager";
+import PackageList from "./pages/PackageList";
 
 function App() {
   return (
@@ -72,6 +75,16 @@ export const PublicRoute = [
     element: <ResetPassword />,
     layout: MainLayout,
   },
+  {
+    path: "/package/:id",
+    element: <PackageDetails />,
+    layout: MainLayout,
+  },
+  {
+    path: "/package",
+    element: <PackageList />,
+    layout: MainLayout,
+  },
 ];
 
 export const PrivateRoute = [
@@ -116,8 +129,13 @@ export const PrivateRoute = [
     layout: InformationLayout,
   },
   {
-    path: "/package/:id",
-    element: <PackageDetails />,
-    layout: MainLayout,
+    path: "/user-manager",
+    element: <UserManager />,
+    layout: InformationLayout,
+  },
+  {
+    path: "/payment-manager",
+    element: <PaymentManager />,
+    layout: InformationLayout,
   },
 ];

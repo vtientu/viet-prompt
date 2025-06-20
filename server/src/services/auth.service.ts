@@ -37,17 +37,19 @@ class AuthService {
       throw new BadRequestError(error.message)
     }
 
-    const user = await UserModel.findOne({ email, isActive: true })
+    const user = await UserModel.findOne({ email })
 
     // 1
     if (!user) {
-      throw new BadRequestError('Email or password is incorrect!')
+      throw new BadRequestError('Email hoặc mật khẩu không chính xác!')
+    } else if (!user.isActive) {
+      throw new BadRequestError('Tài khoản đã bị khóa!')
     }
 
     // 2
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
-      throw new BadRequestError('Email or password is incorrect!')
+      throw new BadRequestError('Email hoặc mật khẩu không chính xác!')
     }
 
     // 3
@@ -61,13 +63,24 @@ class AuthService {
       refreshTokenKey: refreshKeyToken
     })
 
-    const newKeyToken = new KeyToken({
-      user: user._id,
-      accessTokenKey: accessKeyToken,
-      refreshTokenKey: refreshKeyToken,
-      refreshToken: tokens.refreshToken
-    })
-    await newKeyToken.save()
+    const keyTokenFind = await KeyTokenModel.findOne({ user: user._id })
+    if (keyTokenFind) {
+      await KeyTokenModel.findByIdAndUpdate(keyTokenFind._id, {
+        $set: {
+          refreshToken: tokens.refreshToken,
+          accessTokenKey: accessKeyToken,
+          refreshTokenKey: refreshKeyToken
+        }
+      })
+    } else {
+      const newKeyToken = new KeyToken({
+        user: user._id,
+        accessTokenKey: accessKeyToken,
+        refreshTokenKey: refreshKeyToken,
+        refreshToken: tokens.refreshToken
+      })
+      await newKeyToken.save()
+    }
 
     return {
       user: pickFields(user, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified', 'favorites']),
@@ -174,7 +187,7 @@ class AuthService {
     if (!keyToken) {
       throw new BadRequestError('Invalid key token!')
     }
-    
+
     return await KeyTokenModel.deleteOne({ _id: keyToken._id })
   }
 

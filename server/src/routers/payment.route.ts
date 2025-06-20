@@ -1,4 +1,4 @@
-import { authentication } from '@/auth/authMiddleware.js'
+import { authentication, isAdmin } from '@/auth/authMiddleware.js'
 import PaymentController from '@/controllers/payment.controller.js'
 import asyncHandler from '@/helpers/asyncHandler.js'
 import { Router } from 'express'
@@ -12,5 +12,6 @@ paymentRouter.get('/vnpay-ipn', asyncHandler(PaymentController.vnpayIpn))
 paymentRouter.use(authentication)
 paymentRouter.post('/create', asyncHandler(PaymentController.createPayment))
 paymentRouter.get('/owner', asyncHandler(PaymentController.getPaymentOwner))
+paymentRouter.get('/admin', authentication, isAdmin, asyncHandler(PaymentController.getAllPaymentsAdmin))
 
 export default paymentRouter

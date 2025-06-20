@@ -12,6 +12,7 @@ export interface IPackage {
   prompts: { question: string; answer: string }[]
   user: Types.ObjectId
   isActive: boolean
+  totalLikes: number
   createdAt?: Date
   updatedAt?: Date
 }

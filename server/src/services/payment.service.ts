@@ -216,6 +216,51 @@ class PaymentService {
     }
     return sorted
   }
+
+  async getAllPaymentsAdmin(search = '', page = 1, limit = 10) {
+    const query: any = {}
+    if (search) {
+      query.$or = [{ transactionCode: { $regex: search, $options: 'i' } }]
+    }
+    // Lấy danh sách payment, populate user và package để có thể search nâng cao
+    const skip = (page - 1) * limit
+    // Nếu cần search theo tên user/package, phải lấy hết rồi filter, hoặc dùng aggregate
+    // Ở đây sẽ dùng aggregate để search nâng cao
+    const aggregate: any[] = [
+      { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
+      { $unwind: '$user' },
+      { $lookup: { from: 'packages', localField: 'package', foreignField: '_id', as: 'package' } },
+      { $unwind: '$package' },
+      { $match: query }
+    ]
+    if (search) {
+      aggregate.push({
+        $match: {
+          $or: [
+            { transactionCode: { $regex: search, $options: 'i' } },
+            { 'user.firstName': { $regex: search, $options: 'i' } },
+            { 'user.lastName': { $regex: search, $options: 'i' } },
+            { 'user.email': { $regex: search, $options: 'i' } },
+            { 'package.name': { $regex: search, $options: 'i' } }
+          ]
+        }
+      })
+    }
+    const facet = [...aggregate, { $sort: { createdAt: -1 } }, { $skip: skip }, { $limit: limit }]
+    const countFacet = [...aggregate, { $count: 'total' }]
+    const [payments, countArr] = await Promise.all([PaymentModel.aggregate(facet), PaymentModel.aggregate(countFacet)])
+    const total = countArr[0]?.total || 0
+    const totalPages = Math.ceil(total / limit)
+    return {
+      payments,
+      pagination: {
+        total,
+        totalPages,
+        page,
+        limit
+      }
+    }
+  }
 }
 
 export default new PaymentService()

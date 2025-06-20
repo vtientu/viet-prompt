@@ -1,6 +1,6 @@
 import { getTokenFromHeader } from '@/auth/authUtils.js'
 import { HEADER } from '@/constants/app.constants.js'
-import { ForbiddenError, NotFoundError, UnauthorizedError } from '@/core/error.response.js'
+import { ForbiddenError, UnauthorizedError } from '@/core/error.response.js'
 import asyncHandler from '@/helpers/asyncHandler.js'
 import { CustomRequest } from '@/interfaces/request.interface.js'
 import KeyTokenModel from '@/models/keyToken.model.js'
@@ -81,3 +81,10 @@ export const authentication = asyncHandler(async (req: CustomRequest, res: Respo
     throw error
   }
 })
+
+export const isAdmin = (req: CustomRequest, res: Response, next: NextFunction) => {
+  if (req.user.role !== 'admin') {
+    throw new ForbiddenError('Require admin role')
+  }
+  return next()
+}

@@ -10,6 +10,10 @@ const keyTokenSchema = new Schema<IKeyTokenDocument>(
       required: true,
       ref: 'User'
     },
+    // deviceId: {
+    //   type: String,
+    //   required: true
+    // },
     accessTokenKey: {
       type: String,
       required: true

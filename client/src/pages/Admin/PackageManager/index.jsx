@@ -116,7 +116,7 @@ const PackageManager = () => {
       <div className="container-fluid">
         <div className="row">
           <main className="dashboard__main">
-            <div className="dashboard__package-services p-4">
+            <div className="p-4">
               <h4 className="mb-4 text-white">Quản lý gói dịch vụ</h4>
               <div className="d-flex justify-content-between">
                 <div className="search-bar">
@@ -129,7 +129,7 @@ const PackageManager = () => {
                 </div>
                 <button
                   type="button"
-                  className="btn btn-primary mb-3"
+                  className="btn btn-primary"
                   onClick={() => setVisible(true)}
                 >
                   Tạo gói dịch vụ mới
@@ -171,12 +171,18 @@ const PackageManager = () => {
                       </th>
                       <th
                         style={{
-                          minWidth: "160px",
+                          minWidth: "120px",
                         }}
                       >
-                        Tags
+                        Tổng lượt thích
                       </th>
-                      <th>Hành động</th>
+                      <th
+                        style={{
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        Hành động
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -212,14 +218,12 @@ const PackageManager = () => {
                           })}
                         </td>
                         <td>{item?.category?.name}</td>
-                        <td>
-                          <div className="d-flex flex-wrap gap-1">
-                            {item?.tags?.map((tag) => (
-                              <span className="badge bg-secondary" key={tag}>
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
+                        <td
+                          style={{
+                            textAlign: "center",
+                          }}
+                        >
+                          {item?.totalLikes?.toLocaleString("vi-VN")}
                         </td>
                         <td>
                           <button

@@ -12,6 +12,10 @@ const PackageSchema = new Schema(
       ref: 'Category',
       required: true
     },
+    totalLikes: {
+      type: Number,
+      default: 0
+    },
     thumbnail: {
       type: MediaSchema,
       required: true
@@ -34,6 +38,10 @@ const PackageSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
     },
     isActive: {
       type: Boolean,

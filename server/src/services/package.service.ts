@@ -53,6 +53,7 @@ class PackageService {
     if (!package_) {
       throw new BadRequestError('Package không tồn tại!')
     }
+
     const user = await UserModel.findById(userId)
     if (!user) {
       throw new BadRequestError('User không tồn tại!')
@@ -60,9 +61,12 @@ class PackageService {
 
     if (user.favorites.includes(new Types.ObjectId(packageId))) {
       user.favorites = user.favorites.filter((id) => id.toString() !== packageId)
+      package_.totalLikes -= 1
     } else {
       user.favorites.push(new Types.ObjectId(packageId))
+      package_.totalLikes += 1
     }
+    await package_.save()
     await user.save()
 
     return user
@@ -271,7 +275,9 @@ class PackageService {
     const package_ = await PackageModel.findOne({
       _id: packageId,
       isActive: true
-    }).populate(['category', 'user'])
+    })
+      .populate(['category', 'user'])
+      .lean()
 
     if (!package_) {
       throw new BadRequestError('Package không tồn tại!')

@@ -12,6 +12,7 @@ export interface IUser {
   language: string
   isActive: boolean
   isVerified: boolean
+  isRoot: boolean
   createdAt?: Date
   updatedAt?: Date
   favorites: Types.ObjectId[]

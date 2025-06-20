@@ -56,6 +56,10 @@ const UserSchema = new Schema<IUserDocument>(
       type: Boolean,
       default: false
     },
+    isRoot: {
+      type: Boolean,
+      default: false
+    },
     forgot: {
       newPassword: {
         type: String,

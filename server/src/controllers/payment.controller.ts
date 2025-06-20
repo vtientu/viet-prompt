@@ -74,6 +74,15 @@ class PaymentController {
       metadata: await paymentService.getPaymentOwner(req.user._id)
     }).send(res)
   }
+
+  public static async getAllPaymentsAdmin(req: CustomRequest, res: Response) {
+    const { search = '', page = 1, limit = 10 } = req.query
+    const paymentsData = await paymentService.getAllPaymentsAdmin(String(search), Number(page), Number(limit))
+    new OK({
+      message: 'Get all payments successfully',
+      metadata: paymentsData
+    }).send(res)
+  }
 }
 
 export default PaymentController

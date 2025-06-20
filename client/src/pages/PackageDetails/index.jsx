@@ -15,6 +15,16 @@ const PackageDetails = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const { handleCreatePayment } = usePayment();
 
+  // Comment states
+  const [comments, setComments] = useState([]);
+  const [myComment, setMyComment] = useState(null);
+  const [commentInput, setCommentInput] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [commentPage, setCommentPage] = useState(1);
+  const [commentTotalPages, setCommentTotalPages] = useState(1);
+  const [commentTotal, setCommentTotal] = useState(0);
+  const commentLimit = 5;
+
   const handleFavorite = async () => {
     try {
       const response = await http.put(`/package/favorite/${id}`);
@@ -60,6 +70,93 @@ const PackageDetails = () => {
       setIsFavorite(user?.favorites?.includes(packageDetail?._id));
     }
   }, [user, packageDetail]);
+
+  // Fetch comments
+  const fetchComments = async (page = 1) => {
+    try {
+      const res = await http.get(`/comment/package/${id}`, {
+        params: { page, limit: commentLimit },
+      });
+      if (res.status === 200) {
+        setComments(res.data.metadata.comments);
+        setCommentTotalPages(res.data.metadata.pagination.totalPages);
+        setCommentTotal(res.data.metadata.pagination.total);
+        // Tìm comment của user hiện tại
+        if (user) {
+          const found = res.data.metadata.comments.find(
+            (c) => c.user?._id === user._id
+          );
+          setMyComment(found || null);
+          setCommentInput(found ? found.content : "");
+          setIsEditing(!!found);
+        } else {
+          setMyComment(null);
+          setCommentInput("");
+          setIsEditing(false);
+        }
+      }
+    } catch (err) {
+      toast.error("Lỗi khi tải bình luận");
+    }
+  };
+
+  useEffect(() => {
+    if (id) fetchComments(commentPage);
+    // eslint-disable-next-line
+  }, [id, user, commentPage]);
+
+  // Gửi hoặc cập nhật comment
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    if (!commentInput.trim()) {
+      toast.error("Nội dung bình luận không được để trống");
+      return;
+    }
+    try {
+      if (myComment) {
+        // Update comment (giả sử có API PUT /comment/:id)
+        const res = await http.put(`/comment/${myComment._id}`, {
+          content: commentInput,
+        });
+        if (res.status === 200) {
+          toast.success("Cập nhật bình luận thành công");
+          fetchComments(commentPage);
+        }
+      } else {
+        // Add new comment
+        const res = await http.post("/comment", {
+          content: commentInput,
+          package: id,
+        });
+        if (res.status === 201) {
+          toast.success("Gửi bình luận thành công");
+          setCommentInput("");
+          fetchComments(1);
+          setCommentPage(1);
+        }
+      }
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Lỗi khi gửi/cập nhật bình luận"
+      );
+    }
+  };
+
+  // Xóa bình luận
+  const handleDeleteComment = async (commentId, isAdmin = false) => {
+    try {
+      const url = isAdmin
+        ? `/comment/admin/${commentId}`
+        : `/comment/${commentId}`;
+      const res = await http.delete(url);
+      if (res.status === 200) {
+        toast.success("Xóa bình luận thành công");
+        fetchComments(commentPage);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Lỗi khi xóa bình luận");
+    }
+  };
 
   return (
     <section className="detail-prompt-section p-5">
@@ -159,7 +256,7 @@ const PackageDetails = () => {
                         ? "Bỏ khỏi danh sách yêu thích"
                         : "Thêm vào danh sách yêu thích"}
                     </button>
-                    {user._id === packageDetail?.user?._id && (
+                    {user._id !== packageDetail?.user?._id && (
                       <button
                         className="btn btn-create-prompt mb-3"
                         onClick={() =>
@@ -172,16 +269,13 @@ const PackageDetails = () => {
                         Mua
                       </button>
                     )}
-                    <button className="btn btn-create-prompt mb-3">
-                      Tạo Prompt tương tự
-                    </button>
                   </div>
                 )}
                 <div className="group-Exclusive-Version-Details">
                   <div className="verified-text">
                     Created:{" "}
                     {packageDetail?.createdAt
-                      ? new Date(packageDetail.createdAt).toLocaleDateString(
+                      ? new Date(packageDetail?.createdAt).toLocaleDateString(
                           "vi-VN",
                           {
                             day: "2-digit",
@@ -302,6 +396,112 @@ const PackageDetails = () => {
               <div className="col-auto text-white">Natroma</div>
             </div>
           </div>
+        </div>
+
+        {/* COMMENT SECTION */}
+        <div className="comment-section mt-5">
+          <h5 className="text-white mb-3">Bình luận ({commentTotal})</h5>
+          {user ? (
+            <form onSubmit={handleSubmitComment} className="mb-4">
+              <textarea
+                className="form-control mb-2"
+                rows={3}
+                placeholder="Nhập bình luận của bạn..."
+                value={commentInput}
+                onChange={(e) => setCommentInput(e.target.value)}
+                maxLength={500}
+              />
+              <button type="submit" className="btn btn-primary">
+                {myComment ? "Cập nhật bình luận" : "Gửi bình luận"}
+              </button>
+            </form>
+          ) : (
+            <div className="alert alert-info">
+              Bạn cần đăng nhập để bình luận.
+            </div>
+          )}
+          <div className="comment-list">
+            {comments.length === 0 && (
+              <div className="text-white-50">Chưa có bình luận nào.</div>
+            )}
+            {comments.map((c) => (
+              <div
+                key={c._id}
+                className="comment-item mb-3 p-3 rounded bg-dark text-white"
+              >
+                <div className="d-flex align-items-center mb-2">
+                  <img
+                    src={c.user?.avatar || "/img/avatar-default.svg"}
+                    alt="avatar"
+                    className="rounded-circle me-2"
+                    style={{ width: 32, height: 32, objectFit: "cover" }}
+                  />
+                  <strong>
+                    {c.user?.firstName} {c.user?.lastName}
+                  </strong>
+                  <span className="ms-2 text-secondary small">
+                    {new Date(c.createdAt).toLocaleString("vi-VN")}
+                  </span>
+                  {user && c.user?._id === user._id && (
+                    <span className="badge bg-info ms-2">
+                      Bình luận của bạn
+                    </span>
+                  )}
+                  {/* Nút xóa cho user là chủ comment hoặc admin */}
+                  {user &&
+                    (c.user?._id === user._id || user.role === "admin") && (
+                      <button
+                        className="btn btn-sm btn-danger ms-2"
+                        onClick={() =>
+                          handleDeleteComment(
+                            c._id,
+                            user.role === "admin" && c.user?._id !== user._id
+                          )
+                        }
+                      >
+                        Xóa
+                      </button>
+                    )}
+                </div>
+                <div>{c.content}</div>
+              </div>
+            ))}
+          </div>
+          {/* Pagination */}
+          {commentTotalPages > 1 && (
+            <nav className="mt-3 d-flex justify-content-center">
+              <ul className="pagination">
+                <li
+                  className={`page-item ${commentPage === 1 ? "disabled" : ""}`}
+                  onClick={() =>
+                    commentPage > 1 && setCommentPage(commentPage - 1)
+                  }
+                >
+                  <a className="page-link" href="#">
+                    Trước
+                  </a>
+                </li>
+                <li className="page-item active">
+                  <a className="page-link" href="#">
+                    {commentPage}
+                  </a>
+                </li>
+                <li
+                  className={`page-item ${
+                    commentPage === commentTotalPages ? "disabled" : ""
+                  }`}
+                  onClick={() =>
+                    commentPage < commentTotalPages &&
+                    setCommentPage(commentPage + 1)
+                  }
+                >
+                  <a className="page-link" href="#">
+                    Sau
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          )}
         </div>
       </div>
     </section>
