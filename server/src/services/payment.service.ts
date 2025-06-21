@@ -45,7 +45,18 @@ class PaymentService {
   async getPaymentOwner(userId: string) {
     const payments = await PaymentModel.find({ user: userId })
       .populate('user', 'firstName lastName avatar')
-      .populate('package', 'name price')
+      .populate({
+        path: 'package',
+        populate: [
+          {
+            path: 'prompts'
+          },
+          {
+            path: 'category',
+            select: 'name'
+          }
+        ]
+      })
       .sort({ createdAt: -1 })
     return payments
   }

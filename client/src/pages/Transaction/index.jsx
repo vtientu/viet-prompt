@@ -2,9 +2,13 @@ import { toast } from "react-toastify";
 import "./transaction.css";
 import { useEffect, useState } from "react";
 import http from "../../api/http";
+import { Modal } from "antd";
 
 const Transaction = () => {
   const [payments, setPayments] = useState([]);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  console.log(selectedPayment);
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -19,13 +23,42 @@ const Transaction = () => {
         }
       } catch (error) {
         toast.error(
-          error.response.data.message || "Lỗi khi lấy danh sách giao dịch"
+          error.response?.data?.message || "Lỗi khi lấy danh sách giao dịch"
         );
       }
     };
 
     fetchPayments();
   }, []);
+
+  const handleOpenModal = (payment) => {
+    setSelectedPayment(payment);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPayment(null);
+  };
+
+  const handleDownloadImage = async (imageUrl) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      const fileName = imageUrl.split("/").pop();
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      toast.error("Lỗi khi tải ảnh");
+    }
+  };
 
   return (
     <section className="transaction-history-section">
@@ -47,7 +80,7 @@ const Transaction = () => {
                     <th>HỌ TÊN & NGÀY GIAO DỊCH</th>
                     <th>TRẠNG THÁI</th>
                     <th>TÊN GÓI DỊCH VỤ</th>
-                    <th>GHI CHÚ</th>
+                    <th>HÀNH ĐỘNG</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -55,7 +88,13 @@ const Transaction = () => {
                     <tr key={payment._id}>
                       <td>
                         <div className="user-info">
-                          <div className="avatar"></div>
+                          <img
+                            src={
+                              payment.user.avatar || "/img/avatar-default.svg"
+                            }
+                            alt="avatar"
+                            className="avatar-img"
+                          />
                           <div className="text">
                             <div
                               className="name"
@@ -63,7 +102,7 @@ const Transaction = () => {
                                 margin: 0,
                               }}
                             >
-                              {payment.user.fullName}
+                              {payment.user.firstName} {payment.user.lastName}
                             </div>
                             <div className="date">
                               {payment.paidAt
@@ -87,8 +126,11 @@ const Transaction = () => {
                       </td>
                       <td>{payment.package.name}</td>
                       <td>
-                        <button className="details-btn">
-                          {payment.note || "Không có ghi chú"}
+                        <button
+                          className="details-btn"
+                          onClick={() => handleOpenModal(payment)}
+                        >
+                          Xem chi tiết
                         </button>
                       </td>
                     </tr>
@@ -187,6 +229,137 @@ const Transaction = () => {
           </div>
         </div>
       </div>
+      {selectedPayment && (
+        <Modal
+          title="Chi tiết giao dịch"
+          open={isModalOpen}
+          onCancel={handleCloseModal}
+          footer={null}
+          width={800}
+        >
+          <div className="modal-body">
+            <div className="transaction-details">
+              <p>
+                <strong>Mã giao dịch:</strong> {selectedPayment.transactionCode}
+              </p>
+              <p>
+                <strong>Trạng thái:</strong>{" "}
+                <span className={`status ${selectedPayment.status}`}>
+                  {selectedPayment.status.toUpperCase()}
+                </span>
+              </p>
+              <p>
+                <strong>Ngày thanh toán:</strong>{" "}
+                {selectedPayment.paidAt
+                  ? new Date(selectedPayment.paidAt).toLocaleString("vi-VN")
+                  : "Chưa thanh toán"}
+              </p>
+              <hr />
+              <h5>Thông tin gói</h5>
+              <p>
+                <strong>Tên gói:</strong> {selectedPayment.package.name}
+              </p>
+              <p>
+                <strong>Mô tả:</strong> {selectedPayment.package.description}
+              </p>
+              <p>
+                <strong>Danh mục:</strong>{" "}
+                {selectedPayment.package.category?.name}
+              </p>
+              <p>
+                <strong>Giá:</strong>{" "}
+                {selectedPayment.package.price.toLocaleString("vi-VN")} VND
+              </p>
+              <p>
+                <strong>Lượt thích:</strong>{" "}
+                {selectedPayment.package.totalLikes}
+              </p>
+            </div>
+            <hr />
+
+            <h4>Hình ảnh của gói</h4>
+            <div className="prompt-images">
+              <div className="prompt-image-item">
+                <p>
+                  <strong>Thumbnail:</strong>
+                </p>
+                <div
+                  style={{
+                    width: "100%",
+                    aspectRatio: "1/1",
+                    position: "relative",
+                  }}
+                >
+                  <img
+                    src={selectedPayment.package.thumbnail.url}
+                    alt="Thumbnail"
+                    className="prompt-thumbnail"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() =>
+                    handleDownloadImage(selectedPayment.package.thumbnail.url)
+                  }
+                >
+                  Tải thumbnail
+                </button>
+              </div>
+            </div>
+            <div className="prompt-images">
+              {selectedPayment.package.images &&
+                selectedPayment.package.images.map((image, index) => (
+                  <div key={index} className="prompt-image-item">
+                    <p>
+                      <strong>Ảnh {index + 1}:</strong>
+                    </p>
+                    <div
+                      style={{
+                        width: "100%",
+                        aspectRatio: "1/1",
+                        position: "relative",
+                      }}
+                    >
+                      <img
+                        src={image.url}
+                        alt={`Package image ${index + 1}`}
+                        className="prompt-image"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </div>
+                    <button onClick={() => handleDownloadImage(image.url)}>
+                      Tải ảnh
+                    </button>
+                  </div>
+                ))}
+            </div>
+
+            <hr />
+            <h4>Prompts chi tiết</h4>
+            <div className="prompts-list">
+              {selectedPayment.package.prompts.map((prompt, index) => (
+                <div key={index} className="prompt-item">
+                  <h5>Prompt {index + 1}</h5>
+                  <p>
+                    <strong>Câu hỏi:</strong> {prompt.question}
+                  </p>
+                  <p>
+                    <strong>Trả lời:</strong> {prompt.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Modal>
+      )}
     </section>
   );
 };

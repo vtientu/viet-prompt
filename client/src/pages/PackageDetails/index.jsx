@@ -440,7 +440,7 @@ const PackageDetails = () => {
                     {c.user?.firstName} {c.user?.lastName}
                   </strong>
                   <span className="ms-2 text-secondary small">
-                    {new Date(c.createdAt).toLocaleString("vi-VN")}
+                    {new Date(c.updatedAt).toLocaleString("vi-VN")}
                   </span>
                   {user && c.user?._id === user._id && (
                     <span className="badge bg-info ms-2">
