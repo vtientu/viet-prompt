@@ -2,13 +2,11 @@ import React from "react";
 import "./header.css";
 import usePayment from "../hooks/usePayment";
 import { useAuthStore } from "../store/authStore";
-import { useAuthActions } from "../hooks/useAuthActions";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { handleCreatePayment } = usePayment();
-  const { user } = useAuthStore();
-  const { logout } = useAuthActions();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
   return (
@@ -17,11 +15,8 @@ const Header = () => {
         <img src="/img/logo.png" alt="VietPrompt" height="60" />
       </div>
       <nav className="nav-menu d-flex flex-grow-1 gap-2">
-        <div className="nav-item active" onClick={() => navigate("/")}>
+        <div className="nav-item" onClick={() => navigate("/")}>
           Giới thiệu
-        </div>
-        <div className="nav-item">
-          <a href="#">Thư viện</a>
         </div>
         <div className="nav-item" onClick={() => navigate("/package")}>
           Gói dịch vụ
@@ -30,19 +25,7 @@ const Header = () => {
           <a href="#">Dịch vụ</a>
         </div>
         <div className="nav-item dropdown">
-          <a href="#" className="dropdown-toggle" data-bs-toggle="dropdown">
-            Đăng ký
-          </a>
-          <ul className="dropdown-menu">
-            <li
-              className="dropdown-item"
-              onClick={() =>
-                handleCreatePayment(100000, "6847b4add6f07e889ea0fb2d")
-              }
-            >
-              Gói A (100.000đ)
-            </li>
-          </ul>
+          <a href="#">Đăng ký</a>
         </div>
         {user ? (
           <div className="nav-item dropdown">

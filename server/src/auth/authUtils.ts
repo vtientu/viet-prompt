@@ -22,7 +22,3 @@ export const getTokenFromHeader = (token?: string): string | null => {
 
   return null
 }
-
-export const verifyJWT = ({ token, keySecret }: { token: string; keySecret: string }) => {
-  return JWT.verify(token, keySecret)
-}

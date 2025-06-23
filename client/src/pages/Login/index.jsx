@@ -59,7 +59,6 @@ const LoginPage = () => {
             "user",
             JSON.stringify(response.data.metadata.user)
           );
-          localStorage.setItem("clientId", response.data.metadata.user._id);
           login(
             response.data.metadata.user,
             response.data.metadata.tokens.accessToken

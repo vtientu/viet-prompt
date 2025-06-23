@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import dotenv from 'dotenv'
 import { HashAlgorithm, VNPay } from 'vnpay'
 import PaymentModel from '@/models/payment.model.js'
+import mongoose from 'mongoose'
 dotenv.config()
 
 interface VnpayPaymentData {
@@ -42,23 +43,43 @@ class PaymentService {
     })
   }
 
-  async getPaymentOwner(userId: string) {
-    const payments = await PaymentModel.find({ user: userId })
-      .populate('user', 'firstName lastName avatar')
-      .populate({
-        path: 'package',
-        populate: [
-          {
-            path: 'prompts'
-          },
-          {
-            path: 'category',
-            select: 'name'
-          }
-        ]
+  async getPaymentOwner(userId: string, search = '', page = 1, limit = 10) {
+    const query: any = { user: mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : userId }
+    if (search) {
+      query.$or = [{ transactionCode: { $regex: search, $options: 'i' } }]
+    }
+    const skip = (page - 1) * limit
+    const aggregate: any[] = [
+      { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
+      { $unwind: '$user' },
+      { $lookup: { from: 'packages', localField: 'package', foreignField: '_id', as: 'package' } },
+      { $unwind: '$package' },
+      { $match: { 'user._id': mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : userId } }
+    ]
+    if (search) {
+      aggregate.push({
+        $match: {
+          $or: [
+            { transactionCode: { $regex: search, $options: 'i' } },
+            { 'package.name': { $regex: search, $options: 'i' } }
+          ]
+        }
       })
-      .sort({ createdAt: -1 })
-    return payments
+    }
+    const facet = [...aggregate, { $sort: { createdAt: -1 } }, { $skip: skip }, { $limit: limit }]
+    const countFacet = [...aggregate, { $count: 'total' }]
+    const [payments, countArr] = await Promise.all([PaymentModel.aggregate(facet), PaymentModel.aggregate(countFacet)])
+    const total = countArr[0]?.total || 0
+    const totalPages = Math.ceil(total / limit)
+    return {
+      payments,
+      pagination: {
+        total,
+        totalPages,
+        page,
+        limit
+      }
+    }
   }
 
   /**

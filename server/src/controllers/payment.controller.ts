@@ -69,9 +69,11 @@ class PaymentController {
   }
 
   public static async getPaymentOwner(req: CustomRequest, res: Response) {
+    const { search = '', page = 1, limit = 10 } = req.query
+    const paymentsData = await paymentService.getPaymentOwner(req.user._id, String(search), Number(page), Number(limit))
     new OK({
       message: 'Payment fetched successfully',
-      metadata: await paymentService.getPaymentOwner(req.user._id)
+      metadata: paymentsData
     }).send(res)
   }
 

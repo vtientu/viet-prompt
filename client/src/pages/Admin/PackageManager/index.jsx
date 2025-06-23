@@ -196,6 +196,8 @@ const PackageManager = () => {
                             style={{
                               position: "relative",
                               width: "100px",
+                              aspectRatio: "1/1",
+                              border: "1px solid #ccc",
                             }}
                           >
                             <img
@@ -204,7 +206,7 @@ const PackageManager = () => {
                               style={{
                                 width: "100%",
                                 height: "100%",
-                                objectFit: "cover",
+                                objectFit: "contain",
                               }}
                             />
                           </div>

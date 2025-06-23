@@ -79,7 +79,7 @@ const UserSchema = new Schema<IUserDocument>(
 )
 
 UserSchema.virtual('fullName').get(function () {
-  return `${this.firstName} ${this.lastName}`
+  return `${this.lastName} ${this.firstName}`
 })
 
 const UserModel: Model<IUserDocument> = model<IUserDocument>('User', UserSchema)

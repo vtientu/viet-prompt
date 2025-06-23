@@ -28,39 +28,21 @@ const Sidebar = () => {
         ></div>
         <div>
           <div className="sidebar__name">
-            {user?.firstName + " " + user?.lastName}
+            {user?.fullName}
           </div>
           <div className="sidebar__status">
             {user?.role === "admin" ? "Admin" : "User"}
           </div>
         </div>
       </div>
-
-      <hr className="sidebar__divider" />
-
-      <div className="sidebar__section-title">Tiện ích</div>
-      <ul className="sidebar__menu">
-        <li>
-          <img src="/img/search.svg" /> Tìm kiếm
-          <button className="btn_click">Click</button>
-        </li>
-        <li>
-          <img src="/img/credit-card.svg" /> Gói dịch vụ
-        </li>
-      </ul>
-
       {user?.role === "user" && (
         <>
           <hr className="sidebar__divider" />
 
           <div className="sidebar__section-title">Danh mục</div>
           <ul className="sidebar__menu">
-            <li onClick={() => navigate("/admin")}>
-              <img src="/img/square (1).svg" />
-              Forum
-            </li>
             <li onClick={() => navigate("/favourite")}>
-              <img src="/img/triangle.svg" /> List prompt yêu thích
+              <img src="/img/triangle.svg" /> Danh sách yêu thích
             </li>
             <li onClick={() => navigate("/transaction")}>
               <img src="/img/square.svg" />

@@ -39,19 +39,11 @@ class AuthController {
     }).send(res)
   }
 
-  public static async logout(req: CustomRequest, res: Response, next: NextFunction) {
-    new OK({
-      message: 'Logout successfully!',
-      metadata: await AuthService.logout(req.keyToken)
-    }).send(res)
-  }
-
   public static async refreshToken(req: CustomRequest, res: Response, next: NextFunction) {
     new OK({
       message: 'Refresh token successfully!',
       metadata: await AuthService.refreshToken({
-        refreshToken: req.body.refreshToken,
-        keyToken: req.keyToken
+        user: req.user?._id
       })
     }).send(res)
   }

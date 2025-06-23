@@ -98,9 +98,7 @@ const Profile = () => {
                     }}
                   ></div>
                   <div className="user-info-box">
-                    <div className="user-name">
-                      {user?.firstName + " " + user?.lastName}
-                    </div>
+                    <div className="user-name">{user?.fullName}</div>
                     <div className="user-desc">Giới thiệu bản thân</div>
                   </div>
                 </div>
@@ -191,7 +189,7 @@ const Profile = () => {
                       }}
                     ></div>
                     <div>
-                      {prompt.user.firstName} {prompt.user.lastName}
+                      {prompt.user.fullName}
                       <br />
                     </div>
                   </div>

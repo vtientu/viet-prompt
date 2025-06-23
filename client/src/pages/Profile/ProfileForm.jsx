@@ -64,18 +64,6 @@ const ProfileForm = ({ profile, fetchProfile }) => {
     <form className="right-panel glass-box" onSubmit={handleSubmit}>
       <div className="input-grid">
         <div className="field">
-          <label>Tên</label>
-          <input
-            type="text"
-            name="firstName"
-            value={form.firstName}
-            onChange={handleChange}
-          />
-          {errors.firstName && (
-            <div className="error-msg">{errors.firstName}</div>
-          )}
-        </div>
-        <div className="field">
           <label>Họ</label>
           <input
             type="text"
@@ -85,6 +73,18 @@ const ProfileForm = ({ profile, fetchProfile }) => {
           />
           {errors.lastName && (
             <div className="error-msg">{errors.lastName}</div>
+          )}
+        </div>
+        <div className="field">
+          <label>Tên</label>
+          <input
+            type="text"
+            name="firstName"
+            value={form.firstName}
+            onChange={handleChange}
+          />
+          {errors.firstName && (
+            <div className="error-msg">{errors.firstName}</div>
           )}
         </div>
         <div className="field">

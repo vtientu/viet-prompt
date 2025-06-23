@@ -436,9 +436,7 @@ const PackageDetails = () => {
                     className="rounded-circle me-2"
                     style={{ width: 32, height: 32, objectFit: "cover" }}
                   />
-                  <strong>
-                    {c.user?.firstName} {c.user?.lastName}
-                  </strong>
+                  <strong>{c.user?.fullName}</strong>
                   <span className="ms-2 text-secondary small">
                     {new Date(c.updatedAt).toLocaleString("vi-VN")}
                   </span>

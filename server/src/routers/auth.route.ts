@@ -13,6 +13,5 @@ authRouter.get('/verify-token', authentication, asyncHandler(AuthController.veri
 /** --------Authentication--------- */
 authRouter.use(authentication)
 authRouter.post('/refresh-token', asyncHandler(AuthController.refreshToken))
-authRouter.post('/logout', asyncHandler(AuthController.logout))
 
 export default authRouter

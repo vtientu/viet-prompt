@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import http from "../../api/http";
 import "./packageList.css";
+import { toast } from "react-toastify";
 
 const PackageList = () => {
   const [packages, setPackages] = useState([]);
@@ -44,7 +45,9 @@ const PackageList = () => {
         setTotal(res.data.metadata.pagination.total);
       }
     } catch (err) {
-      // Xử lý lỗi nếu cần
+      toast.error(
+        err.response.data.message || "Lỗi khi lấy danh sách gói dịch vụ"
+      );
     }
   };
 

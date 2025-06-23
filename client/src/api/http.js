@@ -11,10 +11,8 @@ const http = axios.create({
 http.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
-    const clientId = localStorage.getItem("clientId");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      config.headers["x-client-id"] = clientId;
     }
     return config;
   },
@@ -24,20 +22,20 @@ http.interceptors.request.use(
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    const token = localStorage.getItem("accessToken");
-    const clientId = localStorage.getItem("clientId");
+    const token = localStorage.getItem("refreshToken");
     if (error.response.status === 401) {
-      if (token && clientId) {
+      if (token) {
         http
-          .post("/auth/logout", {
-            clientId,
-            token,
+          .post("/auth/refresh-token", {
+            headers: {
+              "x-refresh-token": token,
+            }
           })
           .then((res) => {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("clientId");
-            localStorage.removeItem("user");
-            localStorage.removeItem("refreshToken");
+            localStorage.setItem("accessToken", res.data.metadata.tokens.accessToken);
+            localStorage.setItem("refreshToken", res.data.metadata.tokens.refreshToken);
+            localStorage.setItem("user", JSON.stringify(res.data.metadata.user));
+            return http(error.config);
           });
       }
       window.location.href = "/login";

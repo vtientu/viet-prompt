@@ -1,7 +1,5 @@
 import { createTokensPair } from '@/auth/authUtils.js'
 import { BadRequestError, ForbiddenError, UnauthorizedError } from '@/core/error.response.js'
-import KeyTokenModel, { IKeyTokenDocument } from '@/models/keyToken.model.js'
-import KeyToken from '@/models/keyToken.model.js'
 import UserModel from '@/models/user.model.js'
 import {
   forgotPasswordSchema,
@@ -16,7 +14,6 @@ import {
 import { sendPasswordResetEmail } from '@/utils/email.util.js'
 import { pickFields } from '@/utils/index.js'
 import bcrypt from 'bcryptjs'
-import crypto from 'node:crypto'
 
 class AuthService {
   /**
@@ -53,8 +50,8 @@ class AuthService {
     }
 
     // 3
-    const accessKeyToken = crypto.randomBytes(64).toString('hex')
-    const refreshKeyToken = crypto.randomBytes(64).toString('hex')
+    const accessKeyToken = process.env.ACCESS_TOKEN_SECRET || 'access-token-secret'
+    const refreshKeyToken = process.env.REFRESH_TOKEN_SECRET || 'refresh-token-secret'
 
     // 4
     const tokens = createTokensPair({
@@ -62,25 +59,6 @@ class AuthService {
       accessTokenKey: accessKeyToken,
       refreshTokenKey: refreshKeyToken
     })
-
-    const keyTokenFind = await KeyTokenModel.findOne({ user: user._id })
-    if (keyTokenFind) {
-      await KeyTokenModel.findByIdAndUpdate(keyTokenFind._id, {
-        $set: {
-          refreshToken: tokens.refreshToken,
-          accessTokenKey: accessKeyToken,
-          refreshTokenKey: refreshKeyToken
-        }
-      })
-    } else {
-      const newKeyToken = new KeyToken({
-        user: user._id,
-        accessTokenKey: accessKeyToken,
-        refreshTokenKey: refreshKeyToken,
-        refreshToken: tokens.refreshToken
-      })
-      await newKeyToken.save()
-    }
 
     return {
       user: pickFields(user, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified', 'favorites']),
@@ -132,9 +110,9 @@ class AuthService {
     // random code 6 digits
     const code = Math.floor(100000 + Math.random() * 900000).toString()
 
-    const user = await UserModel.findOne({ email }).lean({ virtuals: true })
+    const user = await UserModel.findOne({ email, isActive: true, role: 'user' })
     if (!user) {
-      throw new BadRequestError('Email not registered!')
+      throw new BadRequestError('Email không tồn tại!')
     }
 
     await UserModel.findByIdAndUpdate(user._id, {
@@ -147,7 +125,7 @@ class AuthService {
     await sendPasswordResetEmail(email, code)
 
     return {
-      message: 'Code sent to email!'
+      message: 'Mã đã được gửi đến email!'
     }
   }
 
@@ -183,49 +161,20 @@ class AuthService {
     }
   }
 
-  public static async logout(keyToken?: IKeyTokenDocument) {
-    if (!keyToken) {
-      throw new BadRequestError('Invalid key token!')
+  public static async refreshToken({ user }: { user?: string }) {
+    const userFound = await UserModel.findById(user)
+
+    if (!userFound) {
+      throw new BadRequestError('User not found!')
     }
 
-    return await KeyTokenModel.deleteOne({ _id: keyToken._id })
-  }
-
-  public static async refreshToken({
-    refreshToken,
-    keyToken
-  }: {
-    refreshToken?: string
-    keyToken?: IKeyTokenDocument
-  }) {
-    if (!refreshToken || !keyToken) {
-      throw new BadRequestError('Invalid refresh token or key token!')
-    }
-
-    if (keyToken.refreshTokensUsed.includes(refreshToken)) {
-      await KeyTokenModel.deleteOne({ _id: keyToken._id })
-      throw new ForbiddenError('Some thing wrong! Please login against')
-    }
-
-    if (keyToken.refreshToken !== refreshToken) throw new UnauthorizedError()
-
-    const userFound = await UserModel.findById(keyToken.user).lean({ virtuals: true })
-
-    if (!userFound) throw new ForbiddenError('User not found!')
+    const accessKeyToken = process.env.ACCESS_TOKEN_SECRET || 'access-token-secret'
+    const refreshKeyToken = process.env.REFRESH_TOKEN_SECRET || 'refresh-token-secret'
 
     const tokens = createTokensPair({
       payload: pickFields(userFound, ['_id', 'email', 'fullName', 'avatar', 'role', 'isPremium', 'isVerified']),
-      accessTokenKey: keyToken.accessTokenKey,
-      refreshTokenKey: keyToken.refreshTokenKey
-    })
-
-    await KeyTokenModel.findByIdAndUpdate(keyToken._id, {
-      $set: {
-        refreshToken: tokens.refreshToken
-      },
-      $addToSet: {
-        refreshTokensUsed: refreshToken
-      }
+      accessTokenKey: accessKeyToken,
+      refreshTokenKey: refreshKeyToken
     })
 
     return {

@@ -108,7 +108,7 @@ const PaymentManager = () => {
                         </td>
                         <td>{item.transactionCode}</td>
                         <td>
-                          {item.user?.firstName} {item.user?.lastName}
+                          {item.user?.lastName} {item.user?.firstName}
                           <br />
                           <span style={{ fontSize: 12, color: "#888" }}>
                             {item.user?.email}
@@ -224,8 +224,8 @@ const PaymentManager = () => {
               <strong>Mã giao dịch:</strong> {paymentDetail.transactionCode}
             </p>
             <p>
-              <strong>Người dùng:</strong> {paymentDetail.user?.firstName}{" "}
-              {paymentDetail.user?.lastName} ({paymentDetail.user?.email})
+              <strong>Người dùng:</strong> {paymentDetail.user?.lastName}{" "}
+              {paymentDetail.user?.firstName} ({paymentDetail.user?.email})
             </p>
             <p>
               <strong>Gói dịch vụ:</strong> {paymentDetail.package?.name}
